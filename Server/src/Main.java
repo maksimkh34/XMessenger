@@ -11,13 +11,16 @@ import java.nio.charset.StandardCharsets;
 public class Main {
     public static void main(String[] args) throws IOException {
         StartServer(1588, "/Server");
+        Logger.Log("Started.\n", LogLevel.Info);
     }
 
     static class NetHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
+            Logger.Log("Got HttpExchange!\n", LogLevel.Info);
             InputStream is = exchange.getRequestBody();
             if ("POST".equals(exchange.getRequestMethod())) {
+                Logger.Log("Type: POST\n", LogLevel.Info);
                 String json = new String(is.readAllBytes(), StandardCharsets.UTF_8);
 
                 ObjectMapper mapper = new ObjectMapper();
@@ -28,16 +31,18 @@ public class Main {
                     Register(obj);
                 } catch (IOException e) {
                     SendResponse(exchange, 400, "Invalid object type", true);
+                    Logger.Log("Got invalid object type" + exchange.getRequestMethod(), LogLevel.Error);
                 }
                 SendResponse(exchange, 200, "Object received", true);
             } else {
+                Logger.Log("Expected POST, got " + exchange.getRequestMethod(), LogLevel.Warning);
                 SendResponse(exchange, 405, "Method not allowed (expected: POST)", true);
             }
         }
     }
 
     public static void Register(MyObject object) {
-        System.out.println("Получен объект с id " + object.Id);
+        Logger.Log("Registering  " + object.toString(), LogLevel.Info);
     }
 
     public static void SendResponse(HttpExchange exchange, int code, String message, Boolean close) throws IOException {
@@ -51,6 +56,7 @@ public class Main {
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
         server.createContext(path, new NetHandler());
         server.setExecutor(null); // creates a default executor
+        Logger.Log("Server starting...\n", LogLevel.Info);
         server.start();
     }
 }
