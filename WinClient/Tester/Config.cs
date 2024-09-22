@@ -23,7 +23,7 @@ namespace Tester
             _values = JsonConvert.DeserializeObject<Dictionary<string, string>>(json) ?? [];
         }
 
-        public static void SaveConfig()
+        public static void Save()
         {
             var json = JsonConvert.SerializeObject(_values, Formatting.Indented);
             File.WriteAllText(ConfigPath, json);
