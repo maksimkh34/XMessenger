@@ -20,6 +20,7 @@ public class Main {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
             if ("POST".equals(exchange.getRequestMethod())) {
+                System.out.println("POST");
                 InputStream is = exchange.getRequestBody();
                 String json = new String(is.readAllBytes(), StandardCharsets.UTF_8);
                 System.out.println("Received JSON: " + json);
