@@ -36,7 +36,9 @@ public class Main {
                 SendResponse(exchange, 200, "Object received", true);
             } else {
                 Logger.Log("Expected POST, got " + exchange.getRequestMethod(), LogLevel.Warning);
-                SendResponse(exchange, 405, "Method not allowed (expected: POST)", true);
+                SendResponse(exchange, 405,
+                        "Method not allowed (expected: POST, got: " + exchange.getRequestMethod() + ")",
+                        true);
             }
         }
     }
