@@ -5,7 +5,8 @@ namespace Web
 {
     public static class NetManager
     {
-        private const string ServerUrl = @"http://localhost:1588/Server";
+        private static readonly string ServerUrl = $"http://{Config.GetValue(Config.ServerIP)}" +
+                                                   $":{Config.GetValue(Config.ServerPort)}{Config.GetValue(Config.ServerPath)}";
         private static readonly HttpClient Client = new();
 
         public static async Task<NetResponse> Send<T>(T obj)
@@ -13,7 +14,15 @@ namespace Web
             var json = JsonConvert.SerializeObject(obj);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var response = await Client.PostAsync(ServerUrl, content);
+            HttpResponseMessage? response;
+            try
+            {
+                response = await Client.PostAsync(ServerUrl, content);
+            }
+            catch (AggregateException)
+            {
+                throw new AggregateException($"Конечный сервер недоступен (URL: {ServerUrl}). ");
+            }
             var netResponse =
                 new NetResponse((uint)response.StatusCode, await response.Content.ReadAsStringAsync());
 

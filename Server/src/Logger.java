@@ -9,4 +9,3 @@ public class Logger {
         System.out.print(msg);
     }
 }
-

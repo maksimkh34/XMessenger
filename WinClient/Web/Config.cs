@@ -1,8 +1,8 @@
 ﻿using Newtonsoft.Json;
 
-namespace Tester
+namespace Web
 {
-    internal static class Config
+    public static class Config
     {
         private static string ConfigPath {
             get
@@ -39,5 +39,10 @@ namespace Tester
         {
             _values[key] = value;
         }
+
+        // ReSharper disable once InconsistentNaming
+        public static string ServerIP = "ServerIP";
+        public static string ServerPort = "ServerPort";
+        public static string ServerPath = "ServerPath";
     }
 }
