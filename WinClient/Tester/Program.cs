@@ -1,4 +1,6 @@
-﻿namespace Tester
+﻿using Web;
+
+namespace Tester
 {
     internal class Program
     {

@@ -11,7 +11,7 @@ namespace Web
 
         public static async Task<NetResponse> Send<T>(T obj)
         {
-            var json = JsonConvert.SerializeObject(obj, new JsonSerializerSettings()
+            var json = JsonConvert.SerializeObject(new { type = obj?.GetType().Name, data = obj }, new JsonSerializerSettings()
             {
                 DateFormatHandling = DateFormatHandling.IsoDateFormat,
                 DateTimeZoneHandling = DateTimeZoneHandling.Utc

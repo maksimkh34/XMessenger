@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Web;
 
 namespace Tester
 {
-    internal class Message(string text, uint senderId, uint receiverId) : ICanBeSent
+    internal class Message(string text, uint senderId, uint receiverId)
     {
         public uint SenderId { get; set; } = senderId;
         public uint ReceiverId { get; set; } = receiverId;

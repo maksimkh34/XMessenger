@@ -1,7 +1,6 @@
 import java.time.LocalDateTime;
 
-public class Message
-{
+public class Message {
     public int SenderId;
     public int ReceiverId;
     public LocalDateTime SentTime;

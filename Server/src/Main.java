@@ -1,9 +1,11 @@
+import java.io.DataInput;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.sun.net.httpserver.HttpServer;
@@ -30,13 +32,22 @@ public class Main {
                 mapper.registerModule(new JavaTimeModule());
                 mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
-                Message obj;
-                try {
-                    obj = mapper.readValue(json, Message.class);
-                    Register(obj);
-                } catch (IOException e) {
-                    SendResponse(exchange, 400, "Invalid object type", true);
-                    Logger.Log("Got invalid object type" + exchange.getRequestMethod(), LogLevel.Error);
+                JsonNode rootNode = mapper.readTree(json);
+                String type = rootNode.get("type").asText();
+                JsonNode dataNode = rootNode.get("data");
+
+                switch (type) {
+                    case "Message":
+                        Message msg;
+                        try {
+                            msg = mapper.treeToValue(dataNode, Message.class);
+                            Register(msg);
+                        } catch (IOException e) {
+                            SendResponse(exchange, 400, "Given type mismatch", true);
+                            Logger.Log("Got invalid object type", LogLevel.Error);
+                        }
+                        SendResponse(exchange, 200, "Object received", true);
+                    case "":
                 }
                 SendResponse(exchange, 200, "Object received", true);
             } else {
