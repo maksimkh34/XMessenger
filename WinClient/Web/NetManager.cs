@@ -11,7 +11,11 @@ namespace Web
 
         public static async Task<NetResponse> Send<T>(T obj)
         {
-            var json = JsonConvert.SerializeObject(obj);
+            var json = JsonConvert.SerializeObject(obj, new JsonSerializerSettings()
+            {
+                DateFormatHandling = DateFormatHandling.IsoDateFormat,
+                DateTimeZoneHandling = DateTimeZoneHandling.Utc
+            });
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
             HttpResponseMessage? response;

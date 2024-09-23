@@ -4,6 +4,8 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.sun.net.httpserver.HttpServer;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpExchange;
@@ -25,10 +27,12 @@ public class Main {
                 String json = new String(is.readAllBytes(), StandardCharsets.UTF_8);
 
                 ObjectMapper mapper = new ObjectMapper();
+                mapper.registerModule(new JavaTimeModule());
+                mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
-                MyObject obj;
+                Message obj;
                 try {
-                    obj = mapper.readValue(json, MyObject.class);
+                    obj = mapper.readValue(json, Message.class);
                     Register(obj);
                 } catch (IOException e) {
                     SendResponse(exchange, 400, "Invalid object type", true);
@@ -44,8 +48,9 @@ public class Main {
         }
     }
 
-    public static void Register(MyObject object) {
-        Logger.Log("Registering  " + object.toString(), LogLevel.Info);
+    public static void Register(Message object) {
+        Logger.Log("Got new message: \"" + object.Text + "\", date: "
+                + object.SentTime.toString(), LogLevel.Info);
     }
 
     public static void SendResponse(HttpExchange exchange, int code, String message, Boolean close) throws IOException {
