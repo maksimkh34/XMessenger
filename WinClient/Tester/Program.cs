@@ -9,14 +9,12 @@
             Console.WriteLine(response.StatusCode == 200
                 ? "Success! "
                 : $"Error {response.StatusCode}: {response.Message}");
-            MyObject obj = new MyObject();
         }
 
-        public class MyObject()
+        public class MyObject
         {
             public string? Name { get; set; }
             public int Id { get; set; }
-
         }
     }
 }

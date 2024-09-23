@@ -10,7 +10,8 @@ import com.sun.net.httpserver.HttpExchange;
 import java.nio.charset.StandardCharsets;
 public class Main {
     public static void main(String[] args) throws IOException {
-        StartServer(1588, "/Server");
+        Config.load();
+        StartServer(Integer.parseInt(Config.getValue(Config.SERVER_PORT)), Config.getValue(Config.SERVER_PATH));
         Logger.Log("Started.\n", LogLevel.Info);
     }
 

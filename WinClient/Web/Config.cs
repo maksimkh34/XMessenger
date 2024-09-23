@@ -32,7 +32,7 @@ namespace Web
         public static string GetValue(string key)
         {
             if (_values.TryGetValue(key, out var value)) return value;
-            else throw new KeyNotFoundException("No value found with key " + key + ". ");
+            throw new KeyNotFoundException("No value found with key " + key + ". ");
         }
 
         public static void SetValue(string key, string value)
