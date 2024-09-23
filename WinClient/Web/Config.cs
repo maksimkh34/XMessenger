@@ -16,7 +16,7 @@ namespace Web
         }
         private static Dictionary<string, string> _values = [];
 
-        public static void Load()
+        public static void Init()
         {
             if (!File.Exists(ConfigPath)) return;
             var json = File.ReadAllText(ConfigPath);
