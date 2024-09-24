@@ -44,7 +44,7 @@ public class Main {
                 String receivedHmac = exchange.getRequestHeaders().getFirst("X-HMAC-Signature");
                 if (!verifyHMAC(json, receivedHmac)) {
                     SendResponse(exchange, 401, "Unauthorized", true);
-                    Logger.Log("Invalid HMAC signature", LogLevel.Error);
+                    logger.Log("Invalid HMAC signature", LogLevel.Error);
                     return;
                 }
 
@@ -108,7 +108,7 @@ public class Main {
             String calculatedHmac = Base64.getEncoder().encodeToString(hmacBytes);
             return calculatedHmac.equals(receivedHmac);
         } catch (Exception e) {
-            Logger.Log("HMAC verification failed", LogLevel.Error);
+            logger.Log("HMAC verification failed", LogLevel.Error);
             return false;
         }
     }

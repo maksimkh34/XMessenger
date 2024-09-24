@@ -13,7 +13,7 @@ public class Logger {
         }
     }
 
-    public void Log(String message, LogLevel level) throws IOException {
+    public void Log(String message, LogLevel level) {
         String msg = null;
         String ANSI_RED = "\u001B[31m";
         String ANSI_PURPLE = "\u001B[35m";
@@ -30,10 +30,10 @@ public class Logger {
 
         System.out.print('\n' + msg);
         msg = String.format("%s [%s]: %s", current, level.toString(), message);
-        writer.write(msg);
-        writer.append('\n');
-
-        writer.flush();
-
+        try {
+            writer.write(msg);
+            writer.append('\n');
+            writer.flush();
+        } catch (IOException ignored) {}
     }
 }
