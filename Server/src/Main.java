@@ -1,9 +1,13 @@
-import java.io.DataInput;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
-
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -11,8 +15,13 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.sun.net.httpserver.HttpServer;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpExchange;
+
+import javax.crypto.Mac;
 import java.nio.charset.StandardCharsets;
 public class Main {
+    private static final String HMAC_ALGO = "HmacSHA256";
+    private static final String SECRET_KEY = "fi2b732895";
+
     public static void main(String[] args) throws IOException {
         Config.load();
         Logger.Log("Server version: " + Config.getValue(Config.SERVER_VERSION), LogLevel.Info);
@@ -21,6 +30,7 @@ public class Main {
     }
 
     static class NetHandler implements HttpHandler {
+
         @Override
         public void handle(HttpExchange exchange) throws IOException {
             Logger.Log("Got HttpExchange!", LogLevel.Info);
@@ -28,6 +38,13 @@ public class Main {
             if ("POST".equals(exchange.getRequestMethod())) {
                 Logger.Log("Type: POST", LogLevel.Info);
                 String json = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+
+                String receivedHmac = exchange.getRequestHeaders().getFirst("X-HMAC-Signature");
+                if (!verifyHMAC(json, receivedHmac)) {
+                    SendResponse(exchange, 401, "Unauthorized", true);
+                    Logger.Log("Invalid HMAC signature", LogLevel.Error);
+                    return;
+                }
 
                 ObjectMapper mapper = new ObjectMapper();
                 mapper.registerModule(new JavaTimeModule());
@@ -78,5 +95,19 @@ public class Main {
         server.setExecutor(null);
         Logger.Log("Server starting...", LogLevel.Info);
         server.start();
+    }
+
+    private static boolean verifyHMAC(String data, String receivedHmac) {
+        try {
+            Mac mac = Mac.getInstance(HMAC_ALGO);
+            SecretKeySpec secretKeySpec = new SecretKeySpec(SECRET_KEY.getBytes(), HMAC_ALGO);
+            mac.init(secretKeySpec);
+            byte[] hmacBytes = mac.doFinal(data.getBytes());
+            String calculatedHmac = Base64.getEncoder().encodeToString(hmacBytes);
+            return calculatedHmac.equals(receivedHmac);
+        } catch (Exception e) {
+            Logger.Log("HMAC verification failed", LogLevel.Error);
+            return false;
+        }
     }
 }

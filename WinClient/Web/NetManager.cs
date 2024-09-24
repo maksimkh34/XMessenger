@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Security.Cryptography;
+using System.Text;
 using Newtonsoft.Json;
 
 namespace Web
@@ -8,6 +9,7 @@ namespace Web
         private static readonly string ServerUrl = $"http://{Config.GetValue(Config.ServerIP)}" +
                                                    $":{Config.GetValue(Config.ServerPort)}{Config.GetValue(Config.ServerPath)}";
         private static readonly HttpClient Client = new();
+        private const string SecretKey = "fi2b73289";
 
         public static async Task<NetResponse> Send<T>(T obj)
         {
@@ -17,6 +19,8 @@ namespace Web
                 DateTimeZoneHandling = DateTimeZoneHandling.Utc
             });
             var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var hmacSignature = GenerateHmac(json);
+            content.Headers.Add("X-HMAC-Signature", hmacSignature);
 
             HttpResponseMessage? response;
             try
@@ -31,6 +35,13 @@ namespace Web
                 new NetResponse((uint)response.StatusCode, await response.Content.ReadAsStringAsync());
 
             return netResponse;
+        }
+
+        private static string GenerateHmac(string data)
+        {
+            using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(SecretKey));
+            var hmacBytes = hmac.ComputeHash(Encoding.UTF8.GetBytes(data));
+            return Convert.ToBase64String(hmacBytes);
         }
     }
 }
