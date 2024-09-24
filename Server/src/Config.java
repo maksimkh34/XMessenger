@@ -50,4 +50,6 @@ public class Config {
     public static final String SERVER_PORT = "ServerPort";
     public static final String SERVER_PATH = "ServerPath";
     public static final String SERVER_VERSION = "ServerVersion";
+    public static final String HMAC_ALGO = "HMACAlgo";
+    public static final String HMAC_KEY = "HMACDefaultKey";
 }

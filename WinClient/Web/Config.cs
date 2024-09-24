@@ -41,8 +41,9 @@ namespace Web
         }
 
         // ReSharper disable once InconsistentNaming
-        public static string ServerIP = "ServerIP";
-        public static string ServerPort = "ServerPort";
-        public static string ServerPath = "ServerPath";
+        public const string ServerIP = "ServerIP";
+        public const string ServerPort = "ServerPort";
+        public const string ServerPath = "ServerPath";
+        public const string HMACDefaultKey = "HMACDefaultKey";
     }
 }

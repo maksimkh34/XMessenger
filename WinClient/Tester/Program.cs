@@ -7,7 +7,7 @@ namespace Tester
         private static void Main(string[] args)
         {
             Config.Init();
-            Message msg = new("Hello 2", 111, 444);
+            Message msg = new("msg", 111, 444);
             var response = NetManager.Send(msg).Result;
             Console.WriteLine(response.StatusCode == 200
                 ? "Success! "

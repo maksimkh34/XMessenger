@@ -20,8 +20,6 @@ import com.sun.net.httpserver.HttpExchange;
 import javax.crypto.Mac;
 import java.nio.charset.StandardCharsets;
 public class Main {
-    private static final String HMAC_ALGO = "HmacSHA256";
-    private static final String SECRET_KEY = "fi2b732895";
 
     static Logger logger = new Logger();
     public static void main(String[] args) throws IOException {
@@ -101,8 +99,8 @@ public class Main {
 
     private static boolean verifyHMAC(String data, String receivedHmac) {
         try {
-            Mac mac = Mac.getInstance(HMAC_ALGO);
-            SecretKeySpec secretKeySpec = new SecretKeySpec(SECRET_KEY.getBytes(), HMAC_ALGO);
+            Mac mac = Mac.getInstance(Config.getValue(Config.HMAC_ALGO));
+            SecretKeySpec secretKeySpec = new SecretKeySpec(Config.getValue(Config.HMAC_KEY).getBytes(), Config.getValue(Config.HMAC_ALGO));
             mac.init(secretKeySpec);
             byte[] hmacBytes = mac.doFinal(data.getBytes());
             String calculatedHmac = Base64.getEncoder().encodeToString(hmacBytes);
