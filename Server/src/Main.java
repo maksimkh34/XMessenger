@@ -15,17 +15,18 @@ import java.nio.charset.StandardCharsets;
 public class Main {
     public static void main(String[] args) throws IOException {
         Config.load();
+        Logger.Log("Server version: " + Config.getValue(Config.SERVER_VERSION), LogLevel.Info);
         StartServer(Integer.parseInt(Config.getValue(Config.SERVER_PORT)), Config.getValue(Config.SERVER_PATH));
-        Logger.Log("Started.\n", LogLevel.Info);
+        Logger.Log("Started.", LogLevel.Info);
     }
 
     static class NetHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
-            Logger.Log("Got HttpExchange!\n", LogLevel.Info);
+            Logger.Log("Got HttpExchange!", LogLevel.Info);
             InputStream is = exchange.getRequestBody();
             if ("POST".equals(exchange.getRequestMethod())) {
-                Logger.Log("Type: POST\n", LogLevel.Info);
+                Logger.Log("Type: POST", LogLevel.Info);
                 String json = new String(is.readAllBytes(), StandardCharsets.UTF_8);
 
                 ObjectMapper mapper = new ObjectMapper();
@@ -74,8 +75,8 @@ public class Main {
     public static void StartServer(int port, String path) throws IOException {
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
         server.createContext(path, new NetHandler());
-        server.setExecutor(null); // creates a default executor
-        Logger.Log("Server starting...\n", LogLevel.Info);
+        server.setExecutor(null);
+        Logger.Log("Server starting...", LogLevel.Info);
         server.start();
     }
 }

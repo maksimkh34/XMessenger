@@ -49,4 +49,5 @@ public class Config {
     public static final String SERVER_IP = "ServerIP";
     public static final String SERVER_PORT = "ServerPort";
     public static final String SERVER_PATH = "ServerPath";
+    public static final String SERVER_VERSION = "ServerVersion";
 }
