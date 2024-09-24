@@ -1,3 +1,4 @@
+import java.io.DataInput;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -22,21 +23,22 @@ public class Main {
     private static final String HMAC_ALGO = "HmacSHA256";
     private static final String SECRET_KEY = "fi2b732895";
 
+    static Logger logger = new Logger();
     public static void main(String[] args) throws IOException {
         Config.load();
-        Logger.Log("Server version: " + Config.getValue(Config.SERVER_VERSION), LogLevel.Info);
+        logger.Log("Server version: " + Config.getValue(Config.SERVER_VERSION), LogLevel.Info);
         StartServer(Integer.parseInt(Config.getValue(Config.SERVER_PORT)), Config.getValue(Config.SERVER_PATH));
-        Logger.Log("Started.", LogLevel.Info);
+        logger.Log("Started.", LogLevel.Info);
     }
 
     static class NetHandler implements HttpHandler {
 
         @Override
         public void handle(HttpExchange exchange) throws IOException {
-            Logger.Log("Got HttpExchange!", LogLevel.Info);
+            logger.Log("Got HttpExchange!", LogLevel.Info);
             InputStream is = exchange.getRequestBody();
             if ("POST".equals(exchange.getRequestMethod())) {
-                Logger.Log("Type: POST", LogLevel.Info);
+                logger.Log("Type: POST", LogLevel.Info);
                 String json = new String(is.readAllBytes(), StandardCharsets.UTF_8);
 
                 String receivedHmac = exchange.getRequestHeaders().getFirst("X-HMAC-Signature");
@@ -62,14 +64,14 @@ public class Main {
                             Register(msg);
                         } catch (IOException e) {
                             SendResponse(exchange, 400, "Given type mismatch", true);
-                            Logger.Log("Got invalid object type", LogLevel.Error);
+                            logger.Log("Got invalid object type", LogLevel.Error);
                         }
                         SendResponse(exchange, 200, "Object received", true);
                     case "":
                 }
                 SendResponse(exchange, 200, "Object received", true);
             } else {
-                Logger.Log("Expected POST, got " + exchange.getRequestMethod(), LogLevel.Warning);
+                logger.Log("Expected POST, got " + exchange.getRequestMethod(), LogLevel.Warning);
                 SendResponse(exchange, 405,
                         "Method not allowed (expected: POST, got: " + exchange.getRequestMethod() + ")",
                         true);
@@ -77,8 +79,8 @@ public class Main {
         }
     }
 
-    public static void Register(Message object) {
-        Logger.Log("Got new message: \"" + object.Text + "\", date: "
+    public static void Register(Message object) throws IOException {
+        logger.Log("Got new message: \"" + object.Text + "\", date: "
                 + object.SentTime.toString() + ", sender: " + object.SenderId, LogLevel.Info);
     }
 
@@ -93,7 +95,7 @@ public class Main {
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
         server.createContext(path, new NetHandler());
         server.setExecutor(null);
-        Logger.Log("Server starting...", LogLevel.Info);
+        logger.Log("Server starting...", LogLevel.Info);
         server.start();
     }
 
