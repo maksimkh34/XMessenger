@@ -62,7 +62,7 @@ public class Main {
 
     public static void Register(Message object) {
         Logger.Log("Got new message: \"" + object.Text + "\", date: "
-                + object.SentTime.toString(), LogLevel.Info);
+                + object.SentTime.toString() + ", sender: " + object.SenderId, LogLevel.Info);
     }
 
     public static void SendResponse(HttpExchange exchange, int code, String message, Boolean close) throws IOException {
