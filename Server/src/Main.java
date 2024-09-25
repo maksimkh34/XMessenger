@@ -1,14 +1,18 @@
-import java.io.DataInput;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
+import java.nio.charset.StandardCharsets;
+import java.security.KeyFactory;
+import java.security.PrivateKey;
+import java.security.spec.PKCS8EncodedKeySpec;
+import org.jose4j.jwe.JsonWebEncryption;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -16,17 +20,48 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.sun.net.httpserver.HttpServer;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpExchange;
-
-import javax.crypto.Mac;
-import java.nio.charset.StandardCharsets;
 public class Main {
 
     static Logger logger = new Logger();
+    static KeyPair keys;
     public static void main(String[] args) throws IOException {
         Config.load();
+        keys = generateKeyPair();
         logger.Log("Server version: " + Config.getValue(Config.SERVER_VERSION), LogLevel.Info);
         StartServer(Integer.parseInt(Config.getValue(Config.SERVER_PORT)), Config.getValue(Config.SERVER_PATH));
         logger.Log("Started.", LogLevel.Info);
+    }
+
+    public static String GetPublicKey() {
+        return Base64.getEncoder().encodeToString(keys.getPublic().getEncoded());
+    }
+
+    public static String GetPrivateKey() {
+        return Base64.getEncoder().encodeToString(keys.getPrivate().getEncoded());
+    }
+
+    public static String decryptJson(String encryptedJson, String privateKeyStr) throws Exception {
+        byte[] privateKeyBytes = Base64.getDecoder().decode(privateKeyStr);
+        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(privateKeyBytes);
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        PrivateKey privateKey = keyFactory.generatePrivate(keySpec);
+
+        JsonWebEncryption jwe = new JsonWebEncryption();
+        jwe.setCompactSerialization(encryptedJson);
+        jwe.setKey(privateKey);
+
+        return jwe.getPayload();
+    }
+
+    public static KeyPair generateKeyPair() {
+        KeyPairGenerator keyGen;
+        try {
+            keyGen = KeyPairGenerator.getInstance("RSA");
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+        keyGen.initialize(2048);
+        return keyGen.generateKeyPair();
     }
 
     static class NetHandler implements HttpHandler {
@@ -38,6 +73,17 @@ public class Main {
             if ("POST".equals(exchange.getRequestMethod())) {
                 logger.Log("Type: POST", LogLevel.Info);
                 String json = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+                if(json.equals("PublicKeyRequest")) {
+                    logger.Log("Got public key request", LogLevel.Info);
+                    SendResponse(exchange, 200, GetPublicKey(), true);
+                    return;
+                }
+
+                try {
+                    json = decryptJson(json, GetPrivateKey());
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
 
                 String receivedHmac = exchange.getRequestHeaders().getFirst("X-HMAC-Signature");
                 if (!verifyHMAC(json, receivedHmac)) {

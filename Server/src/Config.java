@@ -25,7 +25,7 @@ public class Config {
         File configFile = new File(GetConfigPath());
         if (!configFile.exists()) return;
         String json = new String(Files.readAllBytes(Paths.get(GetConfigPath())));
-        values = objectMapper.readValue(json, new TypeReference<Map<String, String>>() {});
+        values = objectMapper.readValue(json, new TypeReference<>() {});
     }
 
     public static void save() throws IOException{

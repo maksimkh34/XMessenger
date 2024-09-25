@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="jose4j-0.9.6">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../JavaPlugins/jose4j-0.9.6.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
