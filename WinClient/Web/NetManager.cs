@@ -10,18 +10,25 @@ namespace Web
         private static readonly string ServerUrl = $"http://{Config.GetValue(Config.ServerIP)}" +
                                                    $":{Config.GetValue(Config.ServerPort)}{Config.GetValue(Config.ServerPath)}";
         private static readonly HttpClient Client = new();
-        public static string PublicKey = "";
+        public static string? PublicKey;
+        public static string? DeviceId;
+        public static string HmacKey = Config.GetValue(Config.HMACDefaultKey);
 
         public static async Task<NetResponse> Send<T>(T obj)
         {
-            var decryptedJson = JsonConvert.SerializeObject(new { type = obj?.GetType().Name, data = obj }, new JsonSerializerSettings()
+            var json = JsonConvert.SerializeObject(new { type = obj?.GetType().Name, data = obj }, new JsonSerializerSettings()
             {
                 DateFormatHandling = DateFormatHandling.IsoDateFormat,
                 DateTimeZoneHandling = DateTimeZoneHandling.Utc
             });
-            var json = EncryptJson(decryptedJson, PublicKey);
+
+            if (PublicKey != null)
+            {
+                json = EncryptJson(json, PublicKey);
+            }
+
+            var hmacSignature = GenerateHmac(json);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var hmacSignature = GenerateHmac(decryptedJson);
             content.Headers.Add("X-HMAC-Signature", hmacSignature);
 
             HttpResponseMessage? response;
@@ -33,30 +40,11 @@ namespace Web
             {
                 throw new AggregateException($"Конечный сервер недоступен (URL: {ServerUrl}). ");
             }
+
             var netResponse =
                 new NetResponse((uint)response.StatusCode, await response.Content.ReadAsStringAsync());
 
             return netResponse;
-        }
-
-        public static async Task RequestPublicKey()
-        {
-            var content = new StringContent("PublicKeyRequest", Encoding.UTF8, "application/json");
-            HttpResponseMessage? response;
-            try
-            {
-                response = await Client.PostAsync(ServerUrl, content);
-            }
-            catch (AggregateException)
-            {
-                throw new AggregateException($"Конечный сервер недоступен (URL: {ServerUrl}). ");
-            }
-            var netResponse =
-                new NetResponse((uint)response.StatusCode, await response.Content.ReadAsStringAsync());
-            if (netResponse.StatusCode == 200)
-                PublicKey = netResponse.Message;
-            else
-                throw new Exception("Public key request failed. ");
         }
 
         private static string GenerateHmac(string data)
