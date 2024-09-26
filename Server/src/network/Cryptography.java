@@ -15,9 +15,7 @@ import common.LogLevel;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
-import java.security.KeyFactory;
-import java.security.PrivateKey;
-import java.security.PublicKey;
+import java.security.*;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
@@ -83,6 +81,17 @@ public class Cryptography {
         mac.init(secretKeySpec);
         byte[] hmacBytes = mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
         return Base64.getEncoder().encodeToString(hmacBytes);
+    }
+
+    public static KeyPair generateKeyPair() {
+        KeyPairGenerator keyGen = null;
+        try {
+            keyGen = KeyPairGenerator.getInstance("RSA");
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+        keyGen.initialize(2048);
+        return keyGen.generateKeyPair();
     }
 
     public static PrivateKey stringToPrivateKey(String key) throws Exception {

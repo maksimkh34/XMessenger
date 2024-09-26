@@ -46,12 +46,13 @@ public class OuterServer {
                 if (data.startsWith("TPKeyRequest:")) {
                     Context.logger.Log("Got public key request", LogLevel.Info);
                     var t = new TDevice();
-                    //t.keysToServer = generateKeyPair();
+                    t.keysToServer = Cryptography.generateKeyPair();
                     t.DevId = Generator.getNewTDeviceId();
                     t.publicKeyToClient = data.replace("TPKeyRequest:", "");
                     Context.TDevices.add(t);
                     try {
-                        //NetUtils.sendEncrypted(t.DevId + GetPublicKey(t.keysToServer), exchange, t.publicKeyToClient, Config.getValue(Config.HMAC_KEY));
+                        NetUtils.sendEncrypted(t.DevId + Cryptography.publicKeyToString(t.keysToServer.getPublic()),
+                                exchange, Cryptography.stringToPublicKey(t.publicKeyToClient), Config.getValue(Config.HMAC_KEY));
                     } catch (Exception e) {
                         Context.logger.Log("Error sending TPKResponse", LogLevel.Error);
                     }
