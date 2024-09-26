@@ -8,7 +8,7 @@ import java.time.format.DateTimeFormatter;
 
 public class Logger {
     static FileWriter writer;
-    public Boolean skipFileWrite = true;
+    public Boolean skipFileWrite;
     // Regular text colors
     private static final String ANSI_RED = "\u001B[31m";
     private static final String ANSI_PURPLE = "\u001B[35m";

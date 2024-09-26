@@ -20,7 +20,7 @@ public class InnerServer {
         mapper.registerModule(new JavaTimeModule());
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
-        JsonNode rootNode = null;
+        JsonNode rootNode;
         try {
             rootNode = mapper.readTree(json);
         } catch (JsonProcessingException e) {
@@ -42,8 +42,6 @@ public class InnerServer {
             }
         } catch (JsonProcessingException e) {
             NetUtils.SendResponse(exchange, 200, "Object received", true);
-        } catch (IOException e) {
-
         }
         NetUtils.SendResponse(exchange, 200, "Object received", true);
     }
