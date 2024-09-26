@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="nimbus-jose-jwt-9.41.1">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../JavaPlugins/nimbus-jose-jwt-9.41.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

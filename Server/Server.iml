@@ -14,5 +14,6 @@
     <orderEntry type="library" name="jose4j-0.9.6" level="project" />
     <orderEntry type="library" name="slf4j-jdk14-2.0.9" level="project" />
     <orderEntry type="library" name="slf4j-api-2.0.16" level="project" />
+    <orderEntry type="library" name="nimbus-jose-jwt-9.41.1" level="project" />
   </component>
 </module>

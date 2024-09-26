@@ -10,8 +10,6 @@ import common.Context;
 import common.LogLevel;
 import data.Message;
 
-import java.io.IOException;
-
 import static data.Registration.Register;
 
 public class InnerServer {
@@ -35,14 +33,14 @@ public class InnerServer {
                     Message msg;
                     msg = mapper.treeToValue(dataNode, Message.class);
                     Register(msg);
-                    NetUtils.SendResponse(exchange, 400, "Given type mismatch", true);
+                    NetUtils.sendDecrypted(exchange, 400, "Given type mismatch", true);
                     Context.logger.Log("Got invalid object type", LogLevel.Error);
-                    NetUtils.SendResponse(exchange, 200, "Object received", true);
+                    NetUtils.sendDecrypted(exchange, 200, "Object received", true);
                 case "":
             }
         } catch (JsonProcessingException e) {
-            NetUtils.SendResponse(exchange, 200, "Object received", true);
+            NetUtils.sendDecrypted(exchange, 200, "Object received", true);
         }
-        NetUtils.SendResponse(exchange, 200, "Object received", true);
+        NetUtils.sendDecrypted(exchange, 200, "Object received", true);
     }
 }

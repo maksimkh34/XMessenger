@@ -1,49 +1,66 @@
 package network;
 
+import com.nimbusds.jose.EncryptionMethod;
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWEAlgorithm;
+import com.nimbusds.jose.JWEHeader;
+import com.nimbusds.jose.crypto.RSADecrypter;
+import com.nimbusds.jose.crypto.RSAEncrypter;
+import com.nimbusds.jwt.EncryptedJWT;
+import com.nimbusds.jwt.JWTClaimsSet;
 import common.Config;
 import common.Context;
 import common.LogLevel;
-import org.jose4j.jwe.JsonWebEncryption;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import java.security.*;
+import java.nio.charset.StandardCharsets;
+import java.security.KeyFactory;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.interfaces.RSAPublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
+import java.text.ParseException;
 import java.util.Base64;
 
 public class Cryptography {
-    public static KeyPair keys = Cryptography.generateKeyPair();;
 
-    public static String decryptJson(String encryptedJson, String privateKeyStr) throws Exception {
-        byte[] privateKeyBytes = Base64.getDecoder().decode(privateKeyStr);
-        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(privateKeyBytes);
-        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-        PrivateKey privateKey = keyFactory.generatePrivate(keySpec);
-
-        JsonWebEncryption jwe = new JsonWebEncryption();
-        jwe.setCompactSerialization(encryptedJson);
-        jwe.setKey(privateKey);
-
-        return jwe.getPayload();
-    }
-
-    public static KeyPair generateKeyPair() {
-        KeyPairGenerator keyGen;
+    public static String decryptJson(PrivateKey privateKey, String encryptedJson) {
+        EncryptedJWT jwt = null;
         try {
-            keyGen = KeyPairGenerator.getInstance("RSA");
-        } catch (NoSuchAlgorithmException e) {
+            jwt = EncryptedJWT.parse(encryptedJson);
+        } catch (ParseException e) {
             throw new RuntimeException(e);
         }
-        keyGen.initialize(2048);
-        return keyGen.generateKeyPair();
+
+        RSADecrypter decrypter = new RSADecrypter(privateKey);
+        try {
+            jwt.decrypt(decrypter);
+        } catch (JOSEException e) {
+            throw new RuntimeException(e);
+        }
+
+        try {
+            return jwt.getJWTClaimsSet().getStringClaim("data");
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public static String GetPublicKey() {
-        return Base64.getEncoder().encodeToString(keys.getPublic().getEncoded());
-    }
+    public static String encryptJson(PublicKey publicKey, String json) {
+        JWEHeader header = new JWEHeader(JWEAlgorithm.RSA_OAEP_256, EncryptionMethod.A256GCM);
+        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder().claim("data", json).build();
+        EncryptedJWT jwt = new EncryptedJWT(header, claimsSet);
 
-    public static String GetPrivateKey() {
-        return Base64.getEncoder().encodeToString(keys.getPrivate().getEncoded());
+        RSAEncrypter encrypter = new RSAEncrypter((RSAPublicKey) publicKey);
+        try {
+            jwt.encrypt(encrypter);
+        } catch (JOSEException e) {
+            throw new RuntimeException(e);
+        }
+
+        return jwt.serialize();
     }
 
     public static boolean verifyHMAC(String data, String receivedHmac) {
@@ -58,5 +75,35 @@ public class Cryptography {
             Context.logger.Log("HMAC verification failed", LogLevel.Error);
             return false;
         }
+    }
+
+    public static String generateHmac(String data, String key) throws Exception {
+        Mac mac = Mac.getInstance("HmacSHA256");
+        SecretKeySpec secretKeySpec = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+        mac.init(secretKeySpec);
+        byte[] hmacBytes = mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
+        return Base64.getEncoder().encodeToString(hmacBytes);
+    }
+
+    public static PrivateKey stringToPrivateKey(String key) throws Exception {
+        byte[] byteKey = Base64.getDecoder().decode(key);
+        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(byteKey);
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        return keyFactory.generatePrivate(keySpec);
+    }
+
+    public static String privateKeyToString(PrivateKey privateKey) {
+        return Base64.getEncoder().encodeToString(privateKey.getEncoded());
+    }
+
+    public static PublicKey stringToPublicKey(String key) throws Exception {
+        byte[] byteKey = Base64.getDecoder().decode(key);
+        X509EncodedKeySpec X509publicKey = new X509EncodedKeySpec(byteKey);
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        return keyFactory.generatePublic(X509publicKey);
+    }
+
+    public static String publicKeyToString(PublicKey publicKey) {
+        return Base64.getEncoder().encodeToString(publicKey.getEncoded());
     }
 }

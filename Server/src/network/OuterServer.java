@@ -1,9 +1,17 @@
 package network;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+import common.Config;
 import common.Context;
 import common.LogLevel;
+import data.Generator;
+import data.TDevice;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,28 +26,49 @@ public class OuterServer {
             if ("POST".equals(exchange.getRequestMethod())) {
                 Context.logger.Log("Type: POST", LogLevel.Info);
                 String json = new String(is.readAllBytes(), StandardCharsets.UTF_8);
-                if (json.equals("PublicKeyRequest")) {
-                    Context.logger.Log("Got public key request", LogLevel.Info);
-                    NetUtils.SendResponse(exchange, 200, Cryptography.GetPublicKey(), true);
+                String receivedHmac = exchange.getRequestHeaders().getFirst("X-HMAC-Signature");
+                if (!Cryptography.verifyHMAC(json, receivedHmac)) {
+                    NetUtils.sendDecrypted(exchange, 401, "Unauthorized", true);
+                    Context.logger.Log("Invalid HMAC signature", LogLevel.Error);
                     return;
                 }
+                ObjectMapper mapper = new ObjectMapper();
+                mapper.registerModule(new JavaTimeModule());
+                mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
+                JsonNode rootNode;
+                try {
+                    rootNode = mapper.readTree(json);
+                } catch (JsonProcessingException e) {
+                    throw new RuntimeException(e);
+                }
+                String data = rootNode.get("data").asText();
+                if (data.startsWith("TPKeyRequest:")) {
+                    Context.logger.Log("Got public key request", LogLevel.Info);
+                    var t = new TDevice();
+                    //t.keysToServer = generateKeyPair();
+                    t.DevId = Generator.getNewTDeviceId();
+                    t.publicKeyToClient = data.replace("TPKeyRequest:", "");
+                    Context.TDevices.add(t);
+                    try {
+                        //NetUtils.sendEncrypted(t.DevId + GetPublicKey(t.keysToServer), exchange, t.publicKeyToClient, Config.getValue(Config.HMAC_KEY));
+                    } catch (Exception e) {
+                        Context.logger.Log("Error sending TPKResponse", LogLevel.Error);
+                    }
+                    return;
+                }
+                /*
                 try {
                     json = Cryptography.decryptJson(json, Cryptography.GetPrivateKey());
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
+                 */
 
-                String receivedHmac = exchange.getRequestHeaders().getFirst("X-HMAC-Signature");
-                if (!Cryptography.verifyHMAC(json, receivedHmac)) {
-                    NetUtils.SendResponse(exchange, 401, "Unauthorized", true);
-                    Context.logger.Log("Invalid HMAC signature", LogLevel.Error);
-                    return;
-                }
                 InnerServer.handle(exchange, json);
             } else {
                 Context.logger.Log("Expected POST, got " + exchange.getRequestMethod(), LogLevel.Warning);
-                NetUtils.SendResponse(exchange, 405,
+                NetUtils.sendDecrypted(exchange, 405,
                         "Method not allowed (expected: POST, got: " + exchange.getRequestMethod() + ")",
                         true);
             }
