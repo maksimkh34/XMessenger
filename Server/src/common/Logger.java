@@ -34,7 +34,8 @@ public class Logger {
 
     public void Log(String message, LogLevel level) {
         Date current = new Date();
-        String methodName = Thread.currentThread().getStackTrace()[2].getMethodName();
+        var method = Thread.currentThread().getStackTrace()[2];
+        String methodName = "{" + method.getFileName() + ": " + method.getLineNumber() + "} " + method.getMethodName();
         String formattedMessage = formatMessage(current, methodName, level, message);
         String consoleMessage = formatConsoleMessage(current, methodName, level, message);
 
