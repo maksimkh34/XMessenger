@@ -1,4 +1,4 @@
-package data;
+package data.encryption.entities;
 
 import common.Config;
 
@@ -8,9 +8,17 @@ public class CanDecrypt {
     // Default HMAC Key to sign packages. In UsrAccount hmac key will not be default
     private final String defaultHmacKey = Config.getValue(Config.HMAC_KEY);
     // Public key, should be used to decrypt data that will be sent to Client
-    public PublicKey publicKeyToClient;
+    private PublicKey publicKeyToClient;
 
     public String GetHmacKey() {
         return defaultHmacKey;
+    }
+
+    public PublicKey GetPublicKeyToClient() {
+        return publicKeyToClient;
+    }
+
+    public void SetPublicKeyToClient(PublicKey publicKeyToClient) {
+        this.publicKeyToClient = publicKeyToClient;
     }
 }

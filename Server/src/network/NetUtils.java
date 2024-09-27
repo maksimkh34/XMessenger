@@ -5,7 +5,7 @@ import common.Context;
 import common.LogLevel;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
-import data.CanDecrypt;
+import data.encryption.entities.CanDecrypt;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -27,10 +27,10 @@ public class NetUtils {
         }
     }
 
-    public static void sendEncrypted(Package pkg, CanDecrypt acceptor) throws Exception {
+    public static void encryptAndSend(Package pkg, CanDecrypt acceptor) throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         String json = mapper.writeValueAsString(pkg.decryptedData);
-        String encryptedJson = encryptJson(acceptor.publicKeyToClient, json);
+        String encryptedJson = encryptJson(acceptor.GetPublicKeyToClient(), json);
         String hmacSignature = generateHmac(json, acceptor.GetHmacKey());
 
         pkg.exchange.getResponseHeaders().set("Content-Type", "application/json");
@@ -48,5 +48,9 @@ public class NetUtils {
         server.setExecutor(null);
         common.Context.logger.Log("Server starting...", LogLevel.Info);
         server.start();
+    }
+
+    public static String sendAuthCode(String email) {
+        return "H58DN3";
     }
 }

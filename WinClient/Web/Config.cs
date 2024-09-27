@@ -4,6 +4,8 @@ namespace Web
 {
     public static class Config
     {
+        public static UserData? CurrentUser { get; set; }
+
         private static string ConfigPath {
             get
             {
@@ -44,6 +46,6 @@ namespace Web
         public const string ServerIP = "ServerIP";
         public const string ServerPort = "ServerPort";
         public const string ServerPath = "ServerPath";
-        public const string HMACDefaultKey = "HMACDefaultKey";
+        public const string HmacDefaultKey = "HMACDefaultKey";
     }
 }

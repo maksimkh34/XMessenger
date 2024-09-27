@@ -1,5 +1,6 @@
 package network;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.EncryptionMethod;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWEAlgorithm;
@@ -14,6 +15,8 @@ import common.LogLevel;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import java.io.IOException;
+import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.interfaces.RSAPublicKey;
@@ -22,6 +25,8 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.text.ParseException;
 import java.util.Base64;
+import java.util.Objects;
+import java.util.zip.DataFormatException;
 
 public class Cryptography {
 
@@ -43,8 +48,23 @@ public class Cryptography {
         try {
             return jwt.getJWTClaimsSet().getStringClaim("data");
         } catch (ParseException e) {
-            throw new RuntimeException(e);
+            try {
+                return jwt.getJWTClaimsSet().toString();
+            } catch (ParseException ex) {
+                throw new RuntimeException(ex);
+            }
         }
+    }
+
+    public static String getJSON(Object obj) throws DataFormatException {
+        ObjectMapper jsonMapper = new ObjectMapper();
+        StringWriter writer = new StringWriter();
+        try {
+            jsonMapper.writeValue(writer, obj);
+        } catch (IOException e) {
+            throw new DataFormatException("Error serializing obj");
+        }
+        return writer.toString();
     }
 
     public static String encryptJson(PublicKey publicKey, String json) {
@@ -62,10 +82,10 @@ public class Cryptography {
         return jwt.serialize();
     }
 
-    public static boolean verifyHMAC(String data, String receivedHmac) {
+    public static boolean verifyHMAC(String data, String receivedHmac, String HmacKey) {
         try {
             Mac mac = Mac.getInstance(Config.getValue(Config.HMAC_ALGO));
-            SecretKeySpec secretKeySpec = new SecretKeySpec(Config.getValue(Config.HMAC_KEY).getBytes(), Config.getValue(Config.HMAC_ALGO));
+            SecretKeySpec secretKeySpec = new SecretKeySpec(HmacKey.getBytes(), Config.getValue(Config.HMAC_ALGO));
             mac.init(secretKeySpec);
             byte[] hmacBytes = mac.doFinal(data.getBytes());
             String calculatedHmac = Base64.getEncoder().encodeToString(hmacBytes);

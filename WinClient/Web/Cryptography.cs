@@ -1,16 +1,7 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Cryptography;
-using System.Text;
-using System;
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using System.Text;
 using Jose;
-using Jose;
-using Microsoft.IdentityModel.Tokens;
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.OpenSsl;
-using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Web
 {
@@ -34,13 +25,24 @@ namespace Web
             return jwe;
         }
 
-        public static string DecryptJson(RSAParameters privateKey, string encryptedJson)
+        public static string? DecryptJson(RSAParameters privateKey, string encryptedJson)
         {
-            var rsa = new RSACng();
+            using var rsa = new RSACng();
             rsa.ImportParameters(privateKey);
 
             var json = JWT.Decode(encryptedJson, rsa, Algorithm, Encryption);
-            return json;
+
+            var jsonObject = JObject.Parse(json);
+            var data = jsonObject["data"]?.ToString();
+
+            var cleanedJson = data?.Replace("\\\"", "\"")!;
+
+            if (cleanedJson.StartsWith("\"") && cleanedJson.EndsWith("\""))
+            {
+                cleanedJson = cleanedJson.Substring(1, cleanedJson.Length - 2);
+            }
+
+            return cleanedJson;
         }
     }
 

@@ -10,9 +10,9 @@ namespace Web
         private static readonly string ServerUrl = $"http://{Config.GetValue(Config.ServerIP)}" +
                                                    $":{Config.GetValue(Config.ServerPort)}{Config.GetValue(Config.ServerPath)}";
         private static readonly HttpClient Client = new();
-        public static string? PublicKey;
+        public static string? PublicKeyToServer;
         public static string? DeviceId;
-        public static string HmacKey = Config.GetValue(Config.HMACDefaultKey);
+        public static string HmacKey = Config.GetValue(Config.HmacDefaultKey);
 
         public static async Task<NetResponse> Send<T>(T obj)
         {
@@ -22,14 +22,15 @@ namespace Web
                 DateTimeZoneHandling = DateTimeZoneHandling.Utc
             });
 
-            if (PublicKey != null)
+            if (PublicKeyToServer != null)
             {
-                json = EncryptJson(json, PublicKey);
+                json = EncryptJson(json, PublicKeyToServer);
             }
 
-            var hmacSignature = GenerateHmac(json);
+            var hmacSignature = GenerateHmac(json, HmacKey);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
             content.Headers.Add("X-HMAC-Signature", hmacSignature);
+            if(DeviceId != null) content.Headers.Add("DeviceId", DeviceId);
 
             HttpResponseMessage? response;
             try
@@ -47,9 +48,9 @@ namespace Web
             return netResponse;
         }
 
-        private static string GenerateHmac(string data)
+        private static string GenerateHmac(string data, string dataHmacKey)
         {
-            using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(Config.GetValue(Config.HMACDefaultKey)));
+            using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(dataHmacKey));
             var hmacBytes = hmac.ComputeHash(Encoding.UTF8.GetBytes(data));
             return Convert.ToBase64String(hmacBytes);
         }

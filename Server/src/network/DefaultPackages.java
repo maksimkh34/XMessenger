@@ -16,4 +16,7 @@ public class DefaultPackages {
     public static Package success = new Package(200,
             "OK",
             true);
+    public static Package invalidTDeviceID = new Package(461,
+            "No TDevice ID found",
+            true);
 }
