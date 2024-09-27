@@ -7,9 +7,9 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import common.Config;
 import common.Context;
 import common.LogLevel;
+import data.CanDecrypt;
 import data.Generator;
 import data.TDevice;
 
@@ -28,7 +28,7 @@ public class OuterServer {
                 String json = new String(is.readAllBytes(), StandardCharsets.UTF_8);
                 String receivedHmac = exchange.getRequestHeaders().getFirst("X-HMAC-Signature");
                 if (!Cryptography.verifyHMAC(json, receivedHmac)) {
-                    NetUtils.sendDecrypted(exchange, 401, "Unauthorized", true);
+                    NetUtils.sendDecrypted(DefaultPackages.unauthorized);
                     Context.logger.Log("Invalid HMAC signature", LogLevel.Error);
                     return;
                 }
@@ -46,32 +46,28 @@ public class OuterServer {
                 if (data.startsWith("TPKeyRequest:")) {
                     Context.logger.Log("Got public key request", LogLevel.Info);
                     var t = new TDevice();
-                    t.keysToServer = Cryptography.generateKeyPair();
+                    var keyPair = Cryptography.generateKeyPair();
+                    t.privateKeyFromClient = keyPair.getPrivate();
                     t.DevId = Generator.getNewTDeviceId();
-                    t.publicKeyToClient = data.replace("TPKeyRequest:", "");
+                    t.publicKeyToClient = Cryptography.stringToPublicKey(data.replace("TPKeyRequest:", ""));
                     Context.TDevices.add(t);
+
+                    Package pkg = new Package(exchange,
+                            200,
+                            t.DevId + Cryptography.publicKeyToString(keyPair.getPublic()),
+                            true);
                     try {
-                        NetUtils.sendEncrypted(t.DevId + Cryptography.publicKeyToString(t.keysToServer.getPublic()),
-                                exchange, Cryptography.stringToPublicKey(t.publicKeyToClient), Config.getValue(Config.HMAC_KEY));
+                        NetUtils.sendEncrypted(pkg, t);
+                        Context.logger.Log("Sent public key to device " + t.DevId + "!", LogLevel.Info);
                     } catch (Exception e) {
                         Context.logger.Log("Error sending TPKResponse", LogLevel.Error);
                     }
                     return;
                 }
-                /*
-                try {
-                    json = Cryptography.decryptJson(json, Cryptography.GetPrivateKey());
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-                 */
-
                 InnerServer.handle(exchange, json);
             } else {
                 Context.logger.Log("Expected POST, got " + exchange.getRequestMethod(), LogLevel.Warning);
-                NetUtils.sendDecrypted(exchange, 405,
-                        "Method not allowed (expected: POST, got: " + exchange.getRequestMethod() + ")",
-                        true);
+                NetUtils.sendDecrypted(DefaultPackages.invalidMethod.exchange(exchange));
             }
         }
 

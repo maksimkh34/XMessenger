@@ -17,6 +17,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.interfaces.RSAPublicKey;
+import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.text.ParseException;
@@ -105,11 +106,20 @@ public class Cryptography {
         return Base64.getEncoder().encodeToString(privateKey.getEncoded());
     }
 
-    public static PublicKey stringToPublicKey(String key) throws Exception {
+    public static PublicKey stringToPublicKey(String key) {
         byte[] byteKey = Base64.getDecoder().decode(key);
         X509EncodedKeySpec X509publicKey = new X509EncodedKeySpec(byteKey);
-        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-        return keyFactory.generatePublic(X509publicKey);
+        KeyFactory keyFactory = null;
+        try {
+            keyFactory = KeyFactory.getInstance("RSA");
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+        try {
+            return keyFactory.generatePublic(X509publicKey);
+        } catch (InvalidKeySpecException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static String publicKeyToString(PublicKey publicKey) {

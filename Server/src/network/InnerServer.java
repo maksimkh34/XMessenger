@@ -29,18 +29,16 @@ public class InnerServer {
 
         try {
             switch (type) {
-                case "data.Message":
+                case "Message":
                     Message msg;
                     msg = mapper.treeToValue(dataNode, Message.class);
                     Register(msg);
-                    NetUtils.sendDecrypted(exchange, 400, "Given type mismatch", true);
-                    Context.logger.Log("Got invalid object type", LogLevel.Error);
-                    NetUtils.sendDecrypted(exchange, 200, "Object received", true);
                 case "":
             }
         } catch (JsonProcessingException e) {
-            NetUtils.sendDecrypted(exchange, 200, "Object received", true);
+            NetUtils.sendDecrypted(DefaultPackages.invalidMethod);
+            Context.logger.Log("Got invalid object type", LogLevel.Error);
         }
-        NetUtils.sendDecrypted(exchange, 200, "Object received", true);
+        NetUtils.sendDecrypted(DefaultPackages.success);
     }
 }
