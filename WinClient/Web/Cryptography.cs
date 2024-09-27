@@ -25,7 +25,7 @@ namespace Web
             return jwe;
         }
 
-        public static string? DecryptJson(RSAParameters privateKey, string encryptedJson)
+        public static string DecryptJson(RSAParameters privateKey, string encryptedJson)
         {
             using var rsa = new RSACng();
             rsa.ImportParameters(privateKey);

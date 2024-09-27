@@ -1,5 +1,7 @@
 package data;
 
+import data.encryption.entities.CanDecrypt;
+
 import javax.management.AttributeNotFoundException;
 import java.security.PrivateKey;
 import java.util.HashMap;
@@ -28,6 +30,10 @@ public class Database {
         return sb.toString();
     }
 
+    public static String HmacById(String id) {
+        return testUser.GetHmacKey();
+    }
+
     public static String GetNewSecret() {
         Random random = new Random();
         StringBuilder sb = new StringBuilder(SECRET_LENGTH);
@@ -37,6 +43,10 @@ public class Database {
         }
         // if secret exists, return GetNewSecret()
         return sb.toString();
+    }
+
+    public static CanDecrypt UserById(String userId) {
+        return testUser;
     }
 
     public boolean TryLoginEmail(String email, String password) {

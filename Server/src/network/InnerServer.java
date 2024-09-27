@@ -9,17 +9,16 @@ import com.sun.net.httpserver.HttpExchange;
 import common.Context;
 import common.LogLevel;
 import data.Message;
-import data.encryption.entities.TDevice;
+import data.Registration;
+import data.encryption.entities.CanDecrypt;
 import data.requests.auth.AuthRequest;
 
-import java.io.IOException;
-import java.io.StringWriter;
 import java.util.zip.DataFormatException;
 
 import static data.Registration.Register;
 
 public class InnerServer {
-    public static void handle(HttpExchange exchange, String json, TDevice device) {
+    public static void handle(HttpExchange exchange, String json, CanDecrypt receiver) {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
@@ -42,7 +41,7 @@ public class InnerServer {
                 case "AuthRequest":
                     AuthRequest request;
                     request = mapper.treeToValue(dataNode, AuthRequest.class);
-                    var response = Register(request, device);
+                    var response = Registration.HandleAuthRequest(request);
                     String result = null;
                     try {
                         result = Cryptography.getJSON(response);
@@ -50,10 +49,12 @@ public class InnerServer {
                         NetUtils.sendDecrypted(DefaultPackages.invalidDataFormat);
                     }
                     try {
-                        NetUtils.encryptAndSend(new Package(exchange).decryptedData(result), response.Data);
+                        NetUtils.encryptAndSend(new Package(exchange).decryptedData(result),
+                                response.Data == null ? receiver : response.Data);
                     } catch (Exception e) {
                         try {
-                            NetUtils.encryptAndSend(new Package(exchange).decryptedData(result), device);
+                            NetUtils.encryptAndSend(new Package(exchange).decryptedData(result),
+                                    response.Data == null ? receiver : response.Data);
                         } catch (Exception ex) {
                             throw new RuntimeException(ex);
                         }

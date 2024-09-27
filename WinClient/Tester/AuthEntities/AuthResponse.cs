@@ -13,5 +13,6 @@ namespace Tester.AuthEntities
         [JsonConverter(typeof(AuthResultConverter))]
         public AuthResult? Result { get; set; }
         public UserData? Data { get; set; }
+        public string? PermCts { get; set; }
     }
 }

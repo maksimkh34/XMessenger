@@ -11,6 +11,7 @@ import common.Config;
 import common.Context;
 import common.ContextUtil;
 import common.LogLevel;
+import data.Database;
 import data.Generator;
 import data.encryption.entities.TDevice;
 
@@ -19,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.PrivateKey;
+import java.util.Objects;
 
 public class OuterServer {
     public static class NetHandler implements HttpHandler {
@@ -34,8 +36,17 @@ public class OuterServer {
                 if(exchange.getRequestHeaders().containsKey("DeviceId")) {
                     hmacKey = exchange.getRequestHeaders().getFirst("DeviceId");
                 }
+                if(exchange.getRequestHeaders().containsKey("UserId")) {
+                    var usrId = exchange.getRequestHeaders().getFirst("UserId");
+                    hmacKey = Database.HmacById(usrId);
+                }
                 if (!Cryptography.verifyHMAC(json, receivedHmac, hmacKey)) {
-                    NetUtils.sendDecrypted(DefaultPackages.unauthorized);
+                    try {
+                        NetUtils.encryptAndSend(DefaultPackages.unauthorized,
+                                Objects.requireNonNull(Context.findTDevById(exchange.getRequestHeaders().getFirst("DeviceId"))));
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
                     Context.logger.Log("Invalid HMAC signature", LogLevel.Error);
                     return;
                 }
@@ -50,8 +61,8 @@ public class OuterServer {
                     if (data.startsWith("TPKeyRequest:")) {
                         Context.logger.Log("Got public key request", LogLevel.Info);
                         var t = new TDevice();
-                        var keyPair = Cryptography.generateKeyPair();
-                        t.privateKeyFromClient = keyPair.getPrivate();
+                        var tempKeyPair = Cryptography.generateKeyPair();
+                        t.privateKeyFromClient = tempKeyPair.getPrivate();
                         t.DevId = Generator.getNewTDeviceId();
                         t.SetPublicKeyToClient(
                                 Cryptography.stringToPublicKey(data.replace("TPKeyRequest:", ""))
@@ -60,7 +71,7 @@ public class OuterServer {
 
                         Package pkg = new Package(exchange,
                                 200,
-                                t.DevId + Cryptography.publicKeyToString(keyPair.getPublic()),
+                                t.DevId + Cryptography.publicKeyToString(tempKeyPair.getPublic()),
                                 true);
                         try {
                             NetUtils.encryptAndSend(pkg, t);
@@ -81,6 +92,12 @@ public class OuterServer {
                         }
                         var decrypted = Cryptography.decryptJson(privateKey, json);
                         InnerServer.handle(exchange, decrypted, Context.findTDevById(deviceId));
+                    } else if(exchange.getRequestHeaders().containsKey("UserId")) {
+                        var userId = exchange.getRequestHeaders().getFirst("UserId");
+                        PrivateKey privateKey;
+                        privateKey = Database.privateKeyMap.get(userId);
+                        var decrypted = Cryptography.decryptJson(privateKey, json);
+                        InnerServer.handle(exchange, decrypted, Database.UserById(userId));
                     }
                 }
             } else {

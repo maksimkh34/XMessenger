@@ -3,6 +3,7 @@ package data;
 import data.encryption.entities.CanDecrypt;
 import network.Cryptography;
 
+import java.security.PrivateKey;
 import java.security.PublicKey;
 
 public class UserAccount extends CanDecrypt {
@@ -11,7 +12,7 @@ public class UserAccount extends CanDecrypt {
     public String PUserSurname = "idk";
     public String Password = "idk";
     public String Email = "idk";
-    public String Pk;
+    public String Pk;       // Публичный ключ STC
     public String Secret;
     public String Id;
 
@@ -34,16 +35,15 @@ public class UserAccount extends CanDecrypt {
         var p = this; p.Pk = Cryptography.publicKeyToString(PK); return p;
     }
 
-    public static UserAccount Register(String login, String email, String password) {
+    public static UserAccount Register(String login, String email, String password, String stc, PrivateKey ctsPrivate) {
         var u = new UserAccount();
         u.Login = login;
         u.Email = email;
         u.Password = password;
         u.Id = Database.GetNewId();
         u.Secret = Database.GetNewSecret();
-        var keys = Cryptography.generateKeyPair();
-        u.Pk = Cryptography.publicKeyToString(keys.getPublic());
-        Database.privateKeyMap.put(u.Id, keys.getPrivate());
+        u.Pk = stc;
+        Database.privateKeyMap.put(u.Id, ctsPrivate);
         return u;
     }
 }

@@ -2,6 +2,7 @@ package data.requests.auth;
 
 public class AuthRequest {
     public AuthType AuthType;
+    public String PermServerToClient;
     public String Login;            // заполняется только при регистрации
     public String Authenticator;    // поле, идентифицирующее пользователя. почта, логин, и т. д.
     public String Verifier;         // поле, подтверждающее идентификацию (пароль, код из почты, sms, и тд)

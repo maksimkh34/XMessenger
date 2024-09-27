@@ -7,7 +7,13 @@
         public string? PUserSurname { get; set; }
         public string? Password { get; set; }
         public string? Email { get; set; }
-        public string? Pk { get; set; }
+
+        public string? Pk
+        {
+            get => null;
+            set => _ = value;
+        } // публичный stc
+
         public string? Secret { get; set; }
         public string? Id { get; set; }
     }

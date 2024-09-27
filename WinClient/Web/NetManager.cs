@@ -7,10 +7,16 @@ namespace Web
 {
     public static class NetManager
     {
+        static NetManager()
+        {
+            // debug only!!!
+            Client.Timeout = TimeSpan.FromDays(1);
+        }
+
         private static readonly string ServerUrl = $"http://{Config.GetValue(Config.ServerIP)}" +
                                                    $":{Config.GetValue(Config.ServerPort)}{Config.GetValue(Config.ServerPath)}";
         private static readonly HttpClient Client = new();
-        public static string? PublicKeyToServer;
+        public static string? PublicKeyToServer { get; set; }
         public static string? DeviceId;
         public static string HmacKey = Config.GetValue(Config.HmacDefaultKey);
 
@@ -24,13 +30,15 @@ namespace Web
 
             if (PublicKeyToServer != null)
             {
-                json = EncryptJson(json, PublicKeyToServer);
+                var pk = PublicKeyToServer;
+                json = EncryptJson(json, pk);
             }
 
             var hmacSignature = GenerateHmac(json, HmacKey);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
             content.Headers.Add("X-HMAC-Signature", hmacSignature);
             if(DeviceId != null) content.Headers.Add("DeviceId", DeviceId);
+            if(Config.CurrentUser?.Id != null) content.Headers.Add("UserId", Config.CurrentUser.Id);
 
             HttpResponseMessage? response;
             try
