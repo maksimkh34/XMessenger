@@ -5,7 +5,12 @@ VisualStudioVersion = 17.11.35303.130
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Web", "Web\Web.csproj", "{04674910-247B-4385-A12F-9EEBEEAB75D6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tester", "Tester\Tester.csproj", "{C9938B8F-F3BE-4B37-A338-49B920908ADB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tester", "Tester\Tester.csproj", "{C9938B8F-F3BE-4B37-A338-49B920908ADB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Элементы решения", "Элементы решения", "{463BA72D-C34F-4A1D-A10E-56AAA8B8C436}"
+	ProjectSection(SolutionItems) = preProject
+		..\TODO.md = ..\TODO.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

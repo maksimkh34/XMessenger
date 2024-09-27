@@ -8,14 +8,11 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.sun.net.httpserver.HttpExchange;
 import common.Context;
 import common.LogLevel;
-import data.Message;
 import data.Registration;
 import data.encryption.entities.CanDecrypt;
 import data.requests.auth.AuthRequest;
 
 import java.util.zip.DataFormatException;
-
-import static data.Registration.Register;
 
 public class InnerServer {
     public static void handle(HttpExchange exchange, String json, CanDecrypt receiver) {
@@ -34,10 +31,6 @@ public class InnerServer {
 
         try {
             switch (type) {
-                case "Message":
-                    Message msg;
-                    msg = mapper.treeToValue(dataNode, Message.class);
-                    Register(msg);
                 case "AuthRequest":
                     AuthRequest request;
                     request = mapper.treeToValue(dataNode, AuthRequest.class);

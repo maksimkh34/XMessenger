@@ -1,5 +1,7 @@
 package common;
 
+import data.encryption.entities.TDevice;
+
 import javax.management.AttributeNotFoundException;
 import java.security.PrivateKey;
 import java.util.Objects;
@@ -12,5 +14,14 @@ public class ContextUtil {
             }
         }
         throw new AttributeNotFoundException("No device with provided ID found");
+    }
+
+    public static TDevice findTDevById(String deviceId) {
+        for (TDevice device : Context.TDevices) {
+            if (Objects.equals(device.DevId, deviceId)) {
+                return device;
+            }
+        }
+        return null;
     }
 }

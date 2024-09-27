@@ -9,9 +9,6 @@ import network.Cryptography;
 import network.NetUtils;
 
 public class Registration {
-    public static void Register(Message msg) {
-
-    }
 
     public static AuthResponse HandleAuthRequest(AuthRequest request) {
         switch (request.AuthType) {

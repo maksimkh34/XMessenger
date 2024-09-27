@@ -26,7 +26,8 @@ internal class Program
         var rawResponse = await NetManager.Send(request);
         if (rawResponse.StatusCode != 200) return;
         var jsonResponse = Cryptography.DecryptJson(stcPermKeyPair.privateKey, rawResponse.Message);
-        var authResponse = JsonConvert.DeserializeObject<AuthResponse>(jsonResponse!);
+        var authResponse = JsonConvert.DeserializeObject<AuthResponse>(jsonResponse);
+        //var authResponse = Cryptography.Parse<AuthRequest>(stcPermKeyPair.privateKey, rawResponse.Message);
         if (authResponse?.Result == AuthResult.AUTH_SUCCESS)
         {
             Config.CurrentUser = authResponse.Data;

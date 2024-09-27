@@ -43,7 +43,7 @@ public class OuterServer {
                 if (!Cryptography.verifyHMAC(json, receivedHmac, hmacKey)) {
                     try {
                         NetUtils.encryptAndSend(DefaultPackages.unauthorized,
-                                Objects.requireNonNull(Context.findTDevById(exchange.getRequestHeaders().getFirst("DeviceId"))));
+                                Objects.requireNonNull(ContextUtil.findTDevById(exchange.getRequestHeaders().getFirst("DeviceId"))));
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
@@ -91,7 +91,7 @@ public class OuterServer {
                             return;
                         }
                         var decrypted = Cryptography.decryptJson(privateKey, json);
-                        InnerServer.handle(exchange, decrypted, Context.findTDevById(deviceId));
+                        InnerServer.handle(exchange, decrypted, ContextUtil.findTDevById(deviceId));
                     } else if(exchange.getRequestHeaders().containsKey("UserId")) {
                         var userId = exchange.getRequestHeaders().getFirst("UserId");
                         PrivateKey privateKey;

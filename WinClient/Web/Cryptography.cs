@@ -1,6 +1,7 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 using Jose;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Web
@@ -23,6 +24,13 @@ namespace Web
             rsa.ImportParameters(publicKey);
             var jwe = JWT.Encode(json, rsa, Algorithm, Encryption);
             return jwe;
+        }
+
+        public static T Parse<T>(RSAParameters privateKey, string encryptedJson)
+        {
+            var decrypted = DecryptJson(privateKey, encryptedJson);
+            var obj = JsonConvert.DeserializeObject<T>(decrypted);
+            return obj!;
         }
 
         public static string DecryptJson(RSAParameters privateKey, string encryptedJson)

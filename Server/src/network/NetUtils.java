@@ -5,6 +5,7 @@ import common.Context;
 import common.LogLevel;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
+import data.Generator;
 import data.encryption.entities.CanDecrypt;
 
 import java.io.IOException;
@@ -51,6 +52,8 @@ public class NetUtils {
     }
 
     public static String sendAuthCode(String email) {
-        return "H58DN3";
+        var code = Generator.generateRandomString(6);
+        // send to email
+        return code;
     }
 }

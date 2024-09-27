@@ -35,14 +35,9 @@ public class Database {
     }
 
     public static String GetNewSecret() {
-        Random random = new Random();
-        StringBuilder sb = new StringBuilder(SECRET_LENGTH);
-        for (int i = 0; i < SECRET_LENGTH; i++) {
-            int index = random.nextInt(SECRET_CHARACTERS.length());
-            sb.append(SECRET_CHARACTERS.charAt(index));
-        }
+        var generatedSecret = Generator.generateRandomString(SECRET_LENGTH);
         // if secret exists, return GetNewSecret()
-        return sb.toString();
+        return generatedSecret;
     }
 
     public static CanDecrypt UserById(String userId) {
@@ -52,8 +47,6 @@ public class Database {
     public boolean TryLoginEmail(String email, String password) {
         return Objects.equals(testUser.Email, email) && Objects.equals(testUser.Password, password);
     }
-
-    public Database() { }
 
     public void WaitForEmailCode(String email, String code) {
         expectedCodes.put(email, code);
