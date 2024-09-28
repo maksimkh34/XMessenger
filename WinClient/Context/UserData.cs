@@ -1,4 +1,4 @@
-﻿namespace Web
+﻿namespace Context
 {
     public class UserData
     {

@@ -1,12 +1,14 @@
-﻿using Newtonsoft.Json;
+﻿using System.Security.Cryptography;
+using Newtonsoft.Json;
 
-namespace Web
+namespace Context
 {
     public static class Config
     {
         public static UserData? CurrentUser { get; set; }
 
-        private static string ConfigPath {
+        private static string ConfigPath
+        {
             get
             {
 #if DEBUG

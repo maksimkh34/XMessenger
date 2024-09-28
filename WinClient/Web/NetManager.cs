@@ -2,6 +2,8 @@
 using System.Text;
 using Newtonsoft.Json;
 using Jose;
+using Context;
+
 
 namespace Web
 {
@@ -15,10 +17,20 @@ namespace Web
 
         private static readonly string ServerUrl = $"http://{Config.GetValue(Config.ServerIP)}" +
                                                    $":{Config.GetValue(Config.ServerPort)}{Config.GetValue(Config.ServerPath)}";
+
+        public static RSAParameters StcPermPrivateKey;
+        public static RSAParameters StcPermPublicKey;
         private static readonly HttpClient Client = new();
-        public static string? PublicKeyToServer { get; set; }
+
+        public static string? PublicKeyToServer
+        {
+            get => _publicKeyToServer;
+            set => _ = value == null ? null : _publicKeyToServer = value;
+        }
+
         public static string? DeviceId;
         public static string HmacKey = Config.GetValue(Config.HmacDefaultKey);
+        private static string? _publicKeyToServer;
 
         public static async Task<NetResponse> Send<T>(T obj)
         {
@@ -30,8 +42,7 @@ namespace Web
 
             if (PublicKeyToServer != null)
             {
-                var pk = PublicKeyToServer;
-                json = EncryptJson(json, pk);
+                json = EncryptJson(json, PublicKeyToServer);
             }
 
             var hmacSignature = GenerateHmac(json, HmacKey);

@@ -19,6 +19,8 @@ import net.cryptography.Json;
 import net.packages.DefaultPackages;
 import net.packages.Package;
 
+import java.util.Objects;
+
 public class InnerServer {
     public static void handle(HttpExchange exchange, String json, CanDecrypt receiver) {
         ObjectMapper mapper = new ObjectMapper();
@@ -51,6 +53,9 @@ public class InnerServer {
                                     .setPublicKeyToClient(KeysFactory.stringToPublicKey(request.PermServerToClient));
                     } catch (NullPointerException ignored) { }
                     var response = Registration.HandleAuthRequest(request);
+                    // Если пользователь входит с нового устройства, шифруем ключом, который был в запросе,
+                    // а не остался у пользователя
+                    if(response.Data != null && !Objects.equals(response.Data.Pk, request.PermServerToClient)) response.Data.Pk = request.PermServerToClient;
                     Context.logger.Log("Response " + response.Result, LogLevel.Info);
                     String result = Json.getJSON(response);
                     NetUtils.encryptAndSend(new Package(exchange).decryptedData(result),

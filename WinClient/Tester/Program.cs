@@ -1,13 +1,14 @@
-﻿using Newtonsoft.Json;
+﻿using Context;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Web;
 using Web.NetInteraction;
 
 namespace Tester;
 
-internal class Program
+public class Program
 {
-    private static async Task Main(string[] args)
+    public static async Task Main(string[] args)
     {
         Config.Init();
         var tempStcKeys = KeyGeneratorUtil.GenerateKeyPair(); 
@@ -22,7 +23,7 @@ internal class Program
 
         var stcPermKeyPair = KeyGeneratorUtil.GenerateKeyPair();
         var request = new AuthRequest
-            { Authenticator = "email@gmail.com", Verifier = "password", AuthType = AuthType.AUTH_EMAIL, Login = "MyLogin", PermServerToClient = KeyGeneratorUtil.PublicKeyToString(stcPermKeyPair.publicKey) };
+            { Authenticator = "email@gmail.com", Verifier = "password", AuthType = AuthType.REGISTER, Login = "MyLogin", PermServerToClient = KeyGeneratorUtil.PublicKeyToString(stcPermKeyPair.publicKey) };
         var rawResponse = await NetManager.Send(request);
         if (rawResponse.StatusCode != 200) return;
         var authResponse = Cryptography.Parse<AuthResponse>(stcPermKeyPair.privateKey, rawResponse.Message);

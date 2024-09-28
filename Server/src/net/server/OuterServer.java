@@ -67,6 +67,7 @@ public class OuterServer {
                     rootNode = mapper.readTree(json);
                     String data = rootNode.get("data").asText();
 
+
                     if (data.startsWith("TPKeyRequest:")) {
                         Context.logger.Log("Got new PK request! ", LogLevel.Info);
                         var t = new TDevice();
@@ -90,8 +91,10 @@ public class OuterServer {
                         } catch (Exception e) {
                             Context.logger.Log("Error sending TPKResponse", LogLevel.Error);
                         }
+                    } else {
+                        Context.logger.Log("Invalid data format" + exchange.getRequestMethod(), LogLevel.Error);
+                        NetUtils.sendDecrypted(DefaultPackages.invalidDataFormat.exchange(exchange));
                     }
-
                 } catch (JsonProcessingException e) {
                     // Got encrypted msg from device
                     if(exchange.getRequestHeaders().containsKey("DeviceId")) {
@@ -114,6 +117,7 @@ public class OuterServer {
                     }
 
                 }
+
             } else {
                 Context.logger.Log("Expected POST, got " + exchange.getRequestMethod(), LogLevel.Error);
                 NetUtils.sendDecrypted(DefaultPackages.invalidMethod.exchange(exchange));
