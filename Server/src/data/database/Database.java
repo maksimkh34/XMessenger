@@ -1,5 +1,7 @@
 package data.database;
 
+import data.context.Context;
+import data.logging.LogLevel;
 import data.util.Generator;
 import entities.UserAccount;
 import entities.CanDecrypt;
@@ -51,6 +53,7 @@ public class Database {
     }
 
     public void waitForEmailCode(String email, String code) {
+        Context.logger.Log(email + " is waiting for code " + code, LogLevel.Info);
         expectedCodes.put(email, code);
     }
 

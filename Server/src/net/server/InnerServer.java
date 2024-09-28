@@ -26,30 +26,34 @@ public class InnerServer {
         try {
             rootNode = mapper.readTree(json);
         } catch (JsonProcessingException e) {
+            Context.logger.Log("Error reading tree: \n\n" + json, LogLevel.Error);
             throw new RuntimeException(e);
         }
         String type = rootNode.get("type").asText();
         JsonNode dataNode = rootNode.get("data");
 
-        try {
             switch (type) {
                 case "AuthRequest":
+                    Context.logger.Log("Got new AuthRequest!", LogLevel.Info);
                     AuthRequest request;
-                    request = mapper.treeToValue(dataNode, AuthRequest.class);
+                    try {
+                        request = mapper.treeToValue(dataNode, AuthRequest.class);
+                    } catch (JsonProcessingException e) {
+                        Context.logger.Log("Error processing AuthRequest: " + dataNode, LogLevel.Error);
+                        throw new RuntimeException();
+                    }
                     var response = Registration.HandleAuthRequest(request);
-                    String result;
-                    result = Json.getJSON(response);
+                    Context.logger.Log("Response " + response.Result, LogLevel.Info);
+                    String result = Json.getJSON(response);
                     NetUtils.encryptAndSend(new Package(exchange).decryptedData(result),
                             response.Data == null
                                     ? receiver      // Если в ответе не указан аккаунт, на который отправляем ответ,
                                                     // отправляем его туда, откуда пришел запрос
                                     : response.Data);
-                case "":
+                    return;
+                default:
+                    Context.logger.Log("Invalid type: " + type, LogLevel.Error);
             }
-        } catch (JsonProcessingException e) {
-            NetUtils.encryptAndSend(DefaultPackages.invalidMethod, receiver);
-            Context.logger.Log("Got invalid object type", LogLevel.Error);
-        }
         NetUtils.sendDecrypted(DefaultPackages.success);
     }
 }

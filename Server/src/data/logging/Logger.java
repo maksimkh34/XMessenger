@@ -18,7 +18,6 @@ public class Logger {
     private static final String ANSI_RESET = "\033[0m";
     private static final String ANSI_BRIGHT_BG_YELLOW = "\u001B[43;1m";
 
-
     public Logger(Boolean skipFileWrite){
         try {
             this.skipFileWrite = skipFileWrite;

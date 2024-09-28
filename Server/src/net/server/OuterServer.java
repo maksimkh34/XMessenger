@@ -31,6 +31,7 @@ public class OuterServer {
             InputStream is = exchange.getRequestBody();
 
             if ("POST".equals(exchange.getRequestMethod())) {
+                Context.logger.Log("Got new POST from " + exchange.getRemoteAddress(), LogLevel.Info);
                 String json = new String(is.readAllBytes(), StandardCharsets.UTF_8);
 
                 String receivedHmac = exchange.getRequestHeaders().getFirst("X-HMAC-Signature");
@@ -44,6 +45,9 @@ public class OuterServer {
                     var usrId = exchange.getRequestHeaders().getFirst("UserId");
                     hmacKey = Database.hmacById(usrId);
                 }
+
+                Context.logger.Log("Selected HMAC key: " + hmacKey +
+                        (Objects.equals(hmacKey, Config.HMAC_KEY) ? " (Default)" : ""), LogLevel.Info);
 
                 if (!net.cryptography.HMAC.verifyHMAC(json, receivedHmac, hmacKey)) {
                     Context.logger.Log("Invalid HMAC signature. Key: " + hmacKey, LogLevel.Error);
@@ -64,6 +68,7 @@ public class OuterServer {
                     String data = rootNode.get("data").asText();
 
                     if (data.startsWith("TPKeyRequest:")) {
+                        Context.logger.Log("Got new PK request! ", LogLevel.Info);
                         var t = new TDevice();
                         var tempKeyPair = KeysFactory.generateKeyPair();
 
@@ -91,6 +96,7 @@ public class OuterServer {
                     // Got encrypted msg from device
                     if(exchange.getRequestHeaders().containsKey("DeviceId")) {
                         var deviceId = exchange.getRequestHeaders().getFirst("DeviceId");
+                        Context.logger.Log("Got new pkg from " + deviceId, LogLevel.Info);
                         PrivateKey privateKey;
                         privateKey = ContextUtil.GetPrivateKey(deviceId);
                         var decrypted = net.cryptography.Json.decryptJson(privateKey, json);
@@ -100,12 +106,12 @@ public class OuterServer {
                     // Got encrypted msg from user
                     else if(exchange.getRequestHeaders().containsKey("UserId")) {
                         var userId = exchange.getRequestHeaders().getFirst("UserId");
+                        Context.logger.Log("Got new pkg from " + userId, LogLevel.Info);
                         PrivateKey privateKey;
                         privateKey = Database.privateKeyMap.get(userId);
                         var decrypted = net.cryptography.Json.decryptJson(privateKey, json);
                         InnerServer.handle(exchange, decrypted, Database.userById(userId));
                     }
-
 
                 }
             } else {
