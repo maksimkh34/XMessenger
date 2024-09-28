@@ -1,7 +1,7 @@
-package net.auth;
+package net.requests.auth;
 
 public class AuthRequest {
-    public net.auth.AuthType AuthType;
+    public net.requests.auth.AuthType AuthType;
     public String PermServerToClient;
     public String Login;            // заполняется только при регистрации
     public String Authenticator;    // поле, идентифицирующее пользователя. почта, логин, и т. д.

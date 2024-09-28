@@ -8,17 +8,14 @@ import entities.CanDecrypt;
 
 import javax.management.AttributeNotFoundException;
 import java.security.PrivateKey;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Random;
+import java.util.*;
 
 public class Database {
     private static final int MAX_ID_LENGTH = 8;
     private static final int MIN_ID_LENGTH = 4;
     private static final int SECRET_LENGTH = 16;
     private static final String SECRET_CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    public static UserAccount testUser;
+    public static List<UserAccount> users = new ArrayList<>();
     public static Map<String, PrivateKey> privateKeyMap = new HashMap<>();
 
     private final Map<String, String> expectedCodes = new HashMap<>();
@@ -35,7 +32,10 @@ public class Database {
     }
 
     public static String hmacById(String id) {
-        return testUser.getHmacKey();
+        return users.stream().filter(
+                userAccount -> Objects.equals(userAccount.Id, id)
+        ).findFirst()
+                .map(UserAccount::getHmacKey).orElse(null);
     }
 
     public static String getNewSecret() {
@@ -44,12 +44,20 @@ public class Database {
         return generatedSecret;
     }
 
-    public static CanDecrypt userById(String userId) {
-        return testUser;
+    public static UserAccount userById(String id) {
+        var u = users.stream().filter(
+                userAccount -> Objects.equals(userAccount.Id, id)
+        ).findFirst();
+        return u.orElse(null);
     }
 
-    public boolean tryLoginEmail(String email, String password) {
-        return Objects.equals(testUser.Email, email) && Objects.equals(testUser.Password, password);
+    public Boolean tryLoginEmail(String email, String password) {
+        var _u = users.stream().filter(
+                userAccount -> Objects.equals(userAccount.Email, email)
+        ).findFirst();
+        if(_u.isEmpty()) return null;
+        var u = _u.get();
+        return Objects.equals(u.Email, email) && Objects.equals(u.Password, password);
     }
 
     public void waitForEmailCode(String email, String code) {
@@ -57,18 +65,21 @@ public class Database {
         expectedCodes.put(email, code);
     }
 
-    public boolean codeValid(String email, String code) throws AttributeNotFoundException {
+    public Boolean codeValid(String email, String code) {
         if(expectedCodes.containsKey(email)) {
             return Objects.equals(expectedCodes.get(email), code);
         }
-        throw new AttributeNotFoundException("Email is not in wait list! ");
+        return null;
     }
 
     public static UserAccount userByEmail(String email) {
-        return testUser;
+        var u = users.stream().filter(
+                userAccount -> Objects.equals(userAccount.Email, email)
+        ).findFirst();
+        return u.orElse(null);
     }
 
     public static void register(UserAccount userdata) {
-        testUser = userdata;
+        users.add(userdata);
     }
 }

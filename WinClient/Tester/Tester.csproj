@@ -15,4 +15,8 @@
     <ProjectReference Include="..\Web\Web.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="AuthEntities\" />
+  </ItemGroup>
+
 </Project>

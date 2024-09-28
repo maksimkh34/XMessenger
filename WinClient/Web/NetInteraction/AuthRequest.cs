@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Tester.AuthEntities
+﻿namespace Web.NetInteraction
 {
-    internal class AuthRequest
+    public class AuthRequest
     {
         public AuthType AuthType;
         public string? PermServerToClient { get; set; }

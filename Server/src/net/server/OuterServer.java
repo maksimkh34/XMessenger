@@ -47,7 +47,7 @@ public class OuterServer {
                 }
 
                 Context.logger.Log("Selected HMAC key: " + hmacKey +
-                        (Objects.equals(hmacKey, Config.HMAC_KEY) ? " (Default)" : ""), LogLevel.Info);
+                        (Objects.equals(hmacKey, Config.getValue(Config.HMAC_KEY)) ? " (Default)" : ""), LogLevel.Info);
 
                 if (!net.cryptography.HMAC.verifyHMAC(json, receivedHmac, hmacKey)) {
                     Context.logger.Log("Invalid HMAC signature. Key: " + hmacKey, LogLevel.Error);

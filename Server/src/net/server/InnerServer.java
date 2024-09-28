@@ -7,11 +7,14 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.sun.net.httpserver.HttpExchange;
 import data.context.Context;
+import data.context.ContextUtil;
 import data.logging.LogLevel;
 import data.util.Registration;
 import entities.CanDecrypt;
+import entities.TDevice;
 import net.NetUtils;
-import net.auth.AuthRequest;
+import net.cryptography.KeysFactory;
+import net.requests.auth.AuthRequest;
 import net.cryptography.Json;
 import net.packages.DefaultPackages;
 import net.packages.Package;
@@ -42,6 +45,11 @@ public class InnerServer {
                         Context.logger.Log("Error processing AuthRequest: " + dataNode, LogLevel.Error);
                         throw new RuntimeException();
                     }
+                    try {
+                        if (request.PermServerToClient != null && receiver.getClass() == TDevice.class)
+                            ContextUtil.findTDevById(((TDevice) receiver).devId)
+                                    .setPublicKeyToClient(KeysFactory.stringToPublicKey(request.PermServerToClient));
+                    } catch (NullPointerException ignored) { }
                     var response = Registration.HandleAuthRequest(request);
                     Context.logger.Log("Response " + response.Result, LogLevel.Info);
                     String result = Json.getJSON(response);

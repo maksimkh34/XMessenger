@@ -1,4 +1,4 @@
-package net.auth;
+package net.requests.auth;
 
 import entities.UserAccount;
 
