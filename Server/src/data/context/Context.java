@@ -1,7 +1,8 @@
-package common;
+package data.context;
 
-import data.Database;
-import data.encryption.entities.TDevice;
+import data.logging.Logger;
+import data.database.Database;
+import entities.TDevice;
 
 import java.util.ArrayList;
 import java.util.List;

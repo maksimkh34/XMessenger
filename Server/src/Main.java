@@ -1,10 +1,10 @@
 import java.io.IOException;
 
-import common.Config;
-import common.Context;
-import common.LogLevel;
-import network.NetUtils;
-import network.OuterServer;
+import data.config.Config;
+import data.context.Context;
+import data.logging.LogLevel;
+import net.NetUtils;
+import net.server.OuterServer;
 
 public class Main {
 

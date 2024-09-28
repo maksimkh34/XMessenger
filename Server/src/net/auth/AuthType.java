@@ -1,4 +1,4 @@
-package data.requests.auth;
+package net.auth;
 
 public enum AuthType {
     AUTH_EMAIL,     // войти по почте и паролю

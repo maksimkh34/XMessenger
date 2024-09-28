@@ -1,6 +1,6 @@
-package data.requests.auth;
+package net.auth;
 
-import data.UserAccount;
+import entities.UserAccount;
 
 public class AuthResponse {
     public AuthResult Result;

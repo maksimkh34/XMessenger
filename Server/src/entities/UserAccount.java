@@ -1,7 +1,8 @@
-package data;
+package entities;
 
-import data.encryption.entities.CanDecrypt;
-import network.Cryptography;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import net.cryptography.KeysFactory;
+import data.database.Database;
 
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -17,31 +18,33 @@ public class UserAccount extends CanDecrypt {
     public String Id;
 
     @Override
-    public String GetHmacKey() {
+    public String getHmacKey() {
         return Id + Secret;
     }
 
+    @JsonIgnore
     @Override
-    public PublicKey GetPublicKeyToClient() {
-        return Cryptography.stringToPublicKey(Pk);
+    public PublicKey getPublicKeyToClient() {
+        return KeysFactory.stringToPublicKey(Pk);
     }
 
+    @JsonIgnore
     @Override
-    public void SetPublicKeyToClient(PublicKey publicKeyToClient) {
-        Pk = Cryptography.publicKeyToString(publicKeyToClient);
+    public void setPublicKeyToClient(PublicKey publicKeyToClient) {
+        Pk = KeysFactory.publicKeyToString(publicKeyToClient);
     }
 
     public UserAccount PK(PublicKey PK) {
-        var p = this; p.Pk = Cryptography.publicKeyToString(PK); return p;
+        var p = this; p.Pk = KeysFactory.publicKeyToString(PK); return p;
     }
 
-    public static UserAccount Register(String login, String email, String password, String stc, PrivateKey ctsPrivate) {
+    public static UserAccount register(String login, String email, String password, String stc, PrivateKey ctsPrivate) {
         var u = new UserAccount();
         u.Login = login;
         u.Email = email;
         u.Password = password;
-        u.Id = Database.GetNewId();
-        u.Secret = Database.GetNewSecret();
+        u.Id = Database.getNewId();
+        u.Secret = Database.getNewSecret();
         u.Pk = stc;
         Database.privateKeyMap.put(u.Id, ctsPrivate);
         return u;

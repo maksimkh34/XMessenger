@@ -1,6 +1,8 @@
-package data;
+package data.database;
 
-import data.encryption.entities.CanDecrypt;
+import data.util.Generator;
+import entities.UserAccount;
+import entities.CanDecrypt;
 
 import javax.management.AttributeNotFoundException;
 import java.security.PrivateKey;
@@ -19,36 +21,36 @@ public class Database {
 
     private final Map<String, String> expectedCodes = new HashMap<>();
 
-    public static String GetNewId() {
+    public static String getNewId() {
         Random random = new Random();
         int length = random.nextInt(MAX_ID_LENGTH - MIN_ID_LENGTH + 1) + MIN_ID_LENGTH;
         StringBuilder sb = new StringBuilder(length);
         for (int i = 0; i < length; i++) {
-            sb.append(random.nextInt(10)); // Генерирует случайную цифру от 0 до 9
+            sb.append(random.nextInt(10));
         }
         // if id exists, return GetNewId()
         return sb.toString();
     }
 
-    public static String HmacById(String id) {
-        return testUser.GetHmacKey();
+    public static String hmacById(String id) {
+        return testUser.getHmacKey();
     }
 
-    public static String GetNewSecret() {
+    public static String getNewSecret() {
         var generatedSecret = Generator.generateRandomString(SECRET_LENGTH);
         // if secret exists, return GetNewSecret()
         return generatedSecret;
     }
 
-    public static CanDecrypt UserById(String userId) {
+    public static CanDecrypt userById(String userId) {
         return testUser;
     }
 
-    public boolean TryLoginEmail(String email, String password) {
+    public boolean tryLoginEmail(String email, String password) {
         return Objects.equals(testUser.Email, email) && Objects.equals(testUser.Password, password);
     }
 
-    public void WaitForEmailCode(String email, String code) {
+    public void waitForEmailCode(String email, String code) {
         expectedCodes.put(email, code);
     }
 
@@ -59,11 +61,11 @@ public class Database {
         throw new AttributeNotFoundException("Email is not in wait list! ");
     }
 
-    public static UserAccount UserByEmail(String email) {
+    public static UserAccount userByEmail(String email) {
         return testUser;
     }
 
-    public static void Register(UserAccount userdata) {
+    public static void register(UserAccount userdata) {
         testUser = userdata;
     }
 }

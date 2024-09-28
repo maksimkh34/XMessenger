@@ -1,4 +1,4 @@
-package common;
+package data.logging;
 
 public enum LogLevel {
     Info,       // сообщение о изменениях и процессах в коде

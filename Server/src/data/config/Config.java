@@ -1,4 +1,4 @@
-package common;
+package data.config;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,12 +13,9 @@ import java.util.Map;
 public class Config {
     private static final String ConfigFileName = "config.conf";
     private static String GetConfigPath() {
-        // debug
         Path path = Paths.get(System.getProperty("user.dir"));
         Path parentPath = path.getParent();
         return parentPath + "/" + ConfigFileName;
-        // release
-        //return "config.conf";
     }
     private static Map<String, String> values = new HashMap<>();
     private static final ObjectMapper objectMapper = new ObjectMapper();

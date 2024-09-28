@@ -1,4 +1,4 @@
-package common;
+package data.logging;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -9,7 +9,6 @@ import java.time.format.DateTimeFormatter;
 public class Logger {
     static FileWriter writer;
     public Boolean skipFileWrite;
-    // Regular text colors
     private static final String ANSI_RED = "\u001B[31m";
     private static final String ANSI_PURPLE = "\u001B[35m";
     private static final String ANSI_YELLOW = "\u001B[33m";

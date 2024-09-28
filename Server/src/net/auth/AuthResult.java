@@ -1,4 +1,4 @@
-package data.requests.auth;
+package net.auth;
 
 public enum AuthResult {
     AUTH_SUCCESS,
