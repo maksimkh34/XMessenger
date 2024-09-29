@@ -1,0 +1,9 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <FontFamily x:Key="MainFont">Gill Sans MT Ext Condensed Bold</FontFamily>
+
+    <SolidColorBrush x:Key="AccentBrush">#51b141</SolidColorBrush>
+    <SolidColorBrush x:Key="AccentBackgroundBrush">#aef382</SolidColorBrush>
+    <SolidColorBrush x:Key="BackgroundBrush">#ffffff</SolidColorBrush>
+</ResourceDictionary>

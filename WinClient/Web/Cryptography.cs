@@ -1,4 +1,5 @@
-﻿using System.Security.Cryptography;
+﻿using System.Collections;
+using System.Security.Cryptography;
 using System.Text;
 using Jose;
 using Newtonsoft.Json;

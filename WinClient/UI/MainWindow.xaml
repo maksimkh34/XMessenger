@@ -3,10 +3,25 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:UI"
+        xmlns:elements="clr-namespace:UI.UIElements"
+        Style="{StaticResource ThemedWindow}"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Height="550"
+        Width="960"
+        WindowStartupLocation="CenterScreen"
+        Title="MainWindow">
+    <Grid Width="960" Height="550">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="1.8*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0" MinHeight="30"></Grid>
+        <Image Grid.Row="1" Source="/Assets/BackLabel.png" Stretch='UniformToFill'></Image>
+        <Grid Grid.Row="2"></Grid>
+        <elements:ETextBox Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Center">
 
+        </elements:ETextBox>
+        <TextBox Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,150,0,0">sdfsdfsdsdf</TextBox>
     </Grid>
 </Window>

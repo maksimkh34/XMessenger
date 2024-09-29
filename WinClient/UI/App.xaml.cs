@@ -15,7 +15,14 @@ namespace UI
 
         private async void App_OnStartup(object sender, StartupEventArgs e)
         {
-            await _model.InitMainModel();
+            try
+            {
+                await _model.InitMainModel();
+            }
+            catch (System.Net.Http.HttpRequestException)
+            {
+                // Working offline
+            }
         }
     }
 

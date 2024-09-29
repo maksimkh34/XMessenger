@@ -15,8 +15,8 @@ import data.logging.LogLevel;
 import entities.TDevice;
 import net.NetUtils;
 import net.cryptography.KeysFactory;
-import net.packages.DefaultPackages;
-import net.packages.Package;
+import net.pkg.DefaultPackages;
+import net.pkg.Package;
 
 import java.io.IOException;
 import java.io.InputStream;

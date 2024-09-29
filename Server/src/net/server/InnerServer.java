@@ -16,8 +16,8 @@ import net.NetUtils;
 import net.cryptography.KeysFactory;
 import net.requests.auth.AuthRequest;
 import net.cryptography.Json;
-import net.packages.DefaultPackages;
-import net.packages.Package;
+import net.pkg.DefaultPackages;
+import net.pkg.Package;
 
 import java.util.Objects;
 

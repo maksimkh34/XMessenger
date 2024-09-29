@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
-import net.packages.Package;
+import net.pkg.Package;
 
 import static net.cryptography.Json.encryptJson;
 import static net.cryptography.HMAC.generateHmac;
