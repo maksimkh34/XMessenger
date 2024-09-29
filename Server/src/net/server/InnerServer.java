@@ -48,9 +48,11 @@ public class InnerServer {
                         throw new RuntimeException();
                     }
                     try {
-                        if (request.PermServerToClient != null && receiver.getClass() == TDevice.class)
+                        if (request.PermServerToClient != null && receiver.getClass() == TDevice.class) {
+                            assert ContextUtil.findTDevById(((TDevice) receiver).devId) != null;
                             ContextUtil.findTDevById(((TDevice) receiver).devId)
                                     .setPublicKeyToClient(KeysFactory.stringToPublicKey(request.PermServerToClient));
+                        }
                     } catch (NullPointerException ignored) { }
                     var response = Registration.HandleAuthRequest(request);
                     // Если пользователь входит с нового устройства, шифруем ключом, который был в запросе,
