@@ -3,6 +3,7 @@ package net;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import data.context.Context;
+import data.context.ContextUtil;
 import data.logging.LogLevel;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
@@ -13,6 +14,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
+
+import net.cryptography.KeysFactory;
 import net.pkg.Package;
 
 import static net.cryptography.Json.encryptJson;
@@ -24,6 +27,8 @@ public class NetUtils {
             pkg.exchange.sendResponseHeaders(pkg.code, pkg.decryptedData.length());
             OutputStream os = pkg.exchange.getResponseBody();
             os.write(pkg.decryptedData.getBytes());
+            Context.logger.Log("Sending decrypted data to exchange... ",
+                    LogLevel.Info);
             if(pkg.closeExchange) os.close();
         } catch (IOException e) {
             Context.logger.Log("Error sending response: " + e.getMessage(), LogLevel.Error);
@@ -55,6 +60,9 @@ public class NetUtils {
 
         try (OutputStream os = pkg.exchange.getResponseBody()) {
             os.write(encryptedJson.getBytes(StandardCharsets.UTF_8));
+            Context.logger.Log("Sending data to " +
+                    ContextUtil.shortStr(KeysFactory.publicKeyToString(acceptor.getPublicKeyToClient())),
+                    LogLevel.Info);
         } catch (IOException e) {
             Context.logger.Log("Error sending response to " + pkg.exchange.getRequestURI() +
                     ": " + e.getMessage(), LogLevel.Error);

@@ -1,6 +1,7 @@
 package data.util;
 
 import data.logging.LogLevel;
+import entities.status.StatusRq;
 import net.cryptography.KeysFactory;
 import data.context.Context;
 import data.database.Database;
@@ -11,8 +12,12 @@ import net.NetUtils;
 import entities.UserAccount;
 
 public class Registration {
+    public static void Handle(StatusRq request) {
 
-    public static AuthResponse HandleAuthRequest(AuthRequest request) {
+    }
+
+
+    public static AuthResponse Handle(AuthRequest request) {
         switch (request.AuthType) {
             case AUTH_EMAIL:
                 var email = request.Authenticator;

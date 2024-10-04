@@ -34,4 +34,12 @@ public class ContextUtil {
         }
         return newId;
     }
+
+    public static String shortStr(String str) {
+        if (str == null || str.length() <= 10) {
+            return str;
+        }
+        return "..." + str.substring(str.length() - 10);
+    }
+
 }

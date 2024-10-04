@@ -12,6 +12,7 @@ import data.logging.LogLevel;
 import data.util.Registration;
 import entities.CanDecrypt;
 import entities.TDevice;
+import entities.status.StatusRq;
 import net.NetUtils;
 import net.cryptography.KeysFactory;
 import net.requests.auth.AuthRequest;
@@ -38,6 +39,18 @@ public class InnerServer {
         JsonNode dataNode = rootNode.get("data");
 
             switch (type) {
+                case "StatusRq":
+                    StatusRq sRequest;
+                    try {
+                        sRequest = mapper.treeToValue(dataNode, StatusRq.class);
+                    } catch (JsonProcessingException e) {
+                        Context.logger.Log("Error processing StatusRq: " + dataNode, LogLevel.Error);
+                        NetUtils.encryptAndSend(new Package(exchange).decryptedData("err"), receiver);
+                        throw new RuntimeException();
+                    }
+                    Registration.Handle(sRequest);
+                    NetUtils.encryptAndSend(new Package(exchange).decryptedData("ok"), receiver);
+                    break;
                 case "AuthRequest":
                     Context.logger.Log("Got new AuthRequest!", LogLevel.Info);
                     AuthRequest request;
@@ -54,7 +67,7 @@ public class InnerServer {
                                     .setPublicKeyToClient(KeysFactory.stringToPublicKey(request.PermServerToClient));
                         }
                     } catch (NullPointerException ignored) { }
-                    var response = Registration.HandleAuthRequest(request);
+                    var response = Registration.Handle(request);
                     // Если пользователь входит с нового устройства, шифруем ключом, который был в запросе,
                     // а не остался у пользователя
                     if(response.Data != null && !Objects.equals(response.Data.Pk, request.PermServerToClient)) response.Data.Pk = request.PermServerToClient;

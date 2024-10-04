@@ -6,7 +6,7 @@ public class Package {
     public HttpExchange exchange;
     public int code;
     public String decryptedData;
-    public boolean closeExchange;
+    public boolean closeExchange = true;
 
     public Package(HttpExchange exchange) {
         this.exchange = exchange;
