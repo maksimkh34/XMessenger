@@ -35,11 +35,7 @@ namespace Context
             File.WriteAllText(ConfigPath, json);
         }
 
-        public static string GetValue(string key)
-        {
-            if (_values.TryGetValue(key, out var value)) return value;
-            throw new KeyNotFoundException("No value found with key " + key + ". ");
-        }
+        public static string GetValue(string key) => _values.GetValueOrDefault(key, "$$DEFAULT_VALUE$$");
 
         public static void SetValue(string key, string value)
         {

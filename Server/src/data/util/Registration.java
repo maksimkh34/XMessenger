@@ -12,7 +12,7 @@ import net.NetUtils;
 import entities.UserAccount;
 
 public class Registration {
-    public static void Handle(StatusRq request) {
+    public static void Handle(StatusRq request, String invokerId) {
 
     }
 

@@ -5,5 +5,20 @@
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="UI.MainWindow"
         Title="UI">
-    Welcome to Avalonia!
+    <Grid>
+		<TabControl HorizontalAlignment="Center">
+            <TabItem Header="Первая вкладка">
+                <StackPanel>
+                    <TextBlock Text="Это первая вкладка" />
+                    <!-- Добавьте другие элементы управления здесь -->
+                </StackPanel>
+            </TabItem>
+            <TabItem Header="Вторая вкладка">
+                <StackPanel>
+                    <TextBlock Text="Это вторая вкладка" />
+                    <!-- Добавьте другие элементы управления здесь -->
+                </StackPanel>
+            </TabItem>
+        </TabControl>
+    </Grid>
 </Window>

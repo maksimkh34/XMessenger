@@ -12,6 +12,7 @@ import data.logging.LogLevel;
 import data.util.Registration;
 import entities.CanDecrypt;
 import entities.TDevice;
+import entities.UserAccount;
 import entities.status.StatusRq;
 import net.NetUtils;
 import net.cryptography.KeysFactory;
@@ -48,7 +49,7 @@ public class InnerServer {
                         NetUtils.encryptAndSend(new Package(exchange).decryptedData("err"), receiver);
                         throw new RuntimeException();
                     }
-                    Registration.Handle(sRequest);
+                    Registration.Handle(sRequest, ((UserAccount)receiver).Id);
                     NetUtils.encryptAndSend(new Package(exchange).decryptedData("ok"), receiver);
                     break;
                 case "AuthRequest":

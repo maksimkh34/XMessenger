@@ -8,7 +8,7 @@ using Serilog;
 
 namespace UI
 {
-    public partial class App : Application
+    public class App : Application
     {
         private readonly MainModel _model = new();
 
@@ -24,11 +24,15 @@ namespace UI
                 desktop.MainWindow = new MainWindow();
             }
 
-            base.OnFrameworkInitializationCompleted(); 
-            await _model.InitMainModel();
-
-            var regRsp = await Client.Register("email@mail.ru", "l0gin", "pwd");
-            var statusRsp = await Client.TrySendOnline();
+            base.OnFrameworkInitializationCompleted();
+            try
+            {
+                await _model.InitMainModel();
+            }
+            catch (System.Net.Http.HttpRequestException)
+            {
+                // tell user that we work offline
+            }
         }
     }
 }

@@ -11,6 +11,8 @@ namespace Model
 {
     public class MainModel
     {
+        public bool Connected = false;
+
         public async Task InitMainModel()
         {
             Config.Init();
@@ -29,6 +31,7 @@ namespace Model
 
             var publicKey = RegisterPermKeys();
             NetManager.StcPermPublicKey = publicKey;
+            Connected = true;
         }
 
         private static RSAParameters RegisterPermKeys()

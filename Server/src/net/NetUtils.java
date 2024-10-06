@@ -2,6 +2,7 @@ package net;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import data.config.Config;
 import data.context.Context;
 import data.context.ContextUtil;
 import data.logging.LogLevel;
@@ -14,9 +15,14 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
+import java.util.Properties;
 
 import net.cryptography.KeysFactory;
 import net.pkg.Package;
+
+import javax.mail.*;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 
 import static net.cryptography.Json.encryptJson;
 import static net.cryptography.HMAC.generateHmac;
@@ -80,7 +86,31 @@ public class NetUtils {
 
     public static String sendAuthCode(String email) {
         var code = Generator.generateRandomString(6);
-        // send to email
+
+        Properties props = new Properties();
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true");
+        props.put("mail.smtp.host", "smtp.mail.ru");
+        props.put("mail.smtp.port", "587");
+
+        Session session = Session.getInstance(props, new Authenticator() {
+            @Override
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(Config.getValue(Config.SMTP_EMAIL),
+                        Config.getValue(Config.SMTP_PASSWORD));
+            }
+        });
+
+        Message message = new MimeMessage(session);
+        try {
+            message.setFrom(new InternetAddress(Config.getValue(Config.SMTP_EMAIL))); // Замените на ваш email
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(email));
+            message.setSubject("XMessenger auth code");
+            message.setText("Your XMessenger auth code: " + code);
+            Transport.send(message);
+        } catch (MessagingException e) {
+            throw new RuntimeException(e);
+        }
         return code;
     }
 }

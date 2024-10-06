@@ -15,7 +15,7 @@ public class Config {
     private static String GetConfigPath() {
         Path path = Paths.get(System.getProperty("user.dir"));
         Path parentPath = path.getParent();
-        return parentPath + "/" + ConfigFileName;
+        return parentPath + "\\" + ConfigFileName;
     }
     private static Map<String, String> values = new HashMap<>();
     private static final ObjectMapper objectMapper = new ObjectMapper();
@@ -49,6 +49,8 @@ public class Config {
     public static final String SERVER_PORT = "ServerPort";
     public static final String SERVER_PATH = "ServerPath";
     public static final String SERVER_VERSION = "ServerVersion";
+    public static final String SMTP_EMAIL = "SmtpLogin";
+    public static final String SMTP_PASSWORD = "SmtpPwd";
     public static final String HMAC_ALGO = "HMACAlgo";
     public static final String HMAC_KEY = "HMACDefaultKey";
 }
